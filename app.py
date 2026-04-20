@@ -1302,38 +1302,6 @@ with T3:
         bfi_done = bool(st.session_state.data["profile"].get("bfi"))
         bfi_data = st.session_state.data["profile"].get("bfi", {})
 
-        # ── Completion result card ──
-        if bfi_done and st.session_state.bfi_submitted:
-            st.markdown("""
-            <div style="background:linear-gradient(135deg,#ECFDF5,#D1FAE5);border:1.5px solid #6EE7B7;
-                        border-radius:14px;padding:1.3rem 1.5rem;margin-bottom:1.2rem;">
-              <div style="font-size:1rem;font-weight:800;color:#065F46;margin-bottom:5px;">✅ Big Five 검사가 완료되었습니다</div>
-              <div style="font-size:.83rem;color:#047857;line-height:1.7;">
-                성격 5요인 프로파일이 저장되었습니다. <b>내 심리 프로필</b> 탭에서 레이더 차트와 심층 해석을 확인하세요.<br>
-                다음 단계로 <b>애착 유형 검사 (ECR-R)</b>를 완료하면 더 정밀한 AI 상담이 가능해집니다.
-              </div>
-            </div>
-            """, unsafe_allow_html=True)
-            traits_order = ["O", "C", "E", "A", "N"]
-            r_cols = st.columns(5, gap="small")
-            for rc, t in zip(r_cols, traits_order):
-                m = BFI_META[t]
-                score  = bfi_data.get(t, 0)
-                dscore = (100 - score) if t == "N" else score
-                lvl    = ("안정" if score < 40 else "보통" if score < 60 else "민감") if t == "N" \
-                         else ("낮음" if score < 40 else "보통" if score < 60 else "높음")
-                with rc:
-                    st.markdown(f"""
-                    <div style="background:white;border:1px solid var(--border);border-top:3px solid {m['color']};
-                                border-radius:11px;padding:.8rem .5rem;text-align:center;box-shadow:var(--sh-sm);">
-                      <div style="font-size:1.05rem;">{m['icon']}</div>
-                      <div style="font-size:.67rem;font-weight:700;color:{m['color']};margin-top:3px;">{m['ko']}</div>
-                      <div style="font-size:1.2rem;font-weight:900;color:var(--t1);line-height:1.2;margin-top:2px;">{dscore}</div>
-                      <div style="font-size:.63rem;color:var(--t3);margin-top:1px;">{lvl}</div>
-                    </div>
-                    """, unsafe_allow_html=True)
-            st.markdown("<div style='height:.8rem;'></div>", unsafe_allow_html=True)
-
         # ── Info header ──
         st.markdown(f"""
         <div class="card card-inset" style="margin-bottom:1.3rem;">
@@ -1398,44 +1366,42 @@ with T3:
                 st.session_state.bfi_submitted = True
                 st.rerun()
 
+        # ── Completion result card ──
+        if bfi_done:
+            st.markdown("<div style='height:.8rem;'></div>", unsafe_allow_html=True)
+            st.markdown("""
+            <div style="background:linear-gradient(135deg,#ECFDF5,#D1FAE5);border:1.5px solid #6EE7B7;
+                        border-radius:14px;padding:1.3rem 1.5rem;margin-bottom:1.2rem;">
+              <div style="font-size:1rem;font-weight:800;color:#065F46;margin-bottom:5px;">✅ Big Five 검사가 완료되었습니다</div>
+              <div style="font-size:.83rem;color:#047857;line-height:1.7;">
+                성격 5요인 프로파일이 저장되었습니다. <b>내 심리 프로필</b> 탭에서 레이더 차트와 심층 해석을 확인하세요.<br>
+                다음 단계로 <b>애착 유형 검사 (ECR-R)</b>를 완료하면 더 정밀한 AI 상담이 가능해집니다.
+              </div>
+            </div>
+            """, unsafe_allow_html=True)
+            traits_order = ["O", "C", "E", "A", "N"]
+            r_cols = st.columns(5, gap="small")
+            for rc, t in zip(r_cols, traits_order):
+                m = BFI_META[t]
+                score  = bfi_data.get(t, 0)
+                dscore = (100 - score) if t == "N" else score
+                lvl    = ("안정" if score < 40 else "보통" if score < 60 else "민감") if t == "N" \
+                         else ("낮음" if score < 40 else "보통" if score < 60 else "높음")
+                with rc:
+                    st.markdown(f"""
+                    <div style="background:white;border:1px solid var(--border);border-top:3px solid {m['color']};
+                                border-radius:11px;padding:.8rem .5rem;text-align:center;box-shadow:var(--sh-sm);">
+                      <div style="font-size:1.05rem;">{m['icon']}</div>
+                      <div style="font-size:.67rem;font-weight:700;color:{m['color']};margin-top:3px;">{m['ko']}</div>
+                      <div style="font-size:1.2rem;font-weight:900;color:var(--t1);line-height:1.2;margin-top:2px;">{dscore}</div>
+                      <div style="font-size:.63rem;color:var(--t3);margin-top:1px;">{lvl}</div>
+                    </div>
+                    """, unsafe_allow_html=True)
+
     # ─── ECR ─────────────────────────────────────────────────
     with S2:
         att_done = bool(st.session_state.data["profile"].get("attachment"))
         att_key  = st.session_state.data["profile"].get("attachment")
-
-        # ── Completion result card ──
-        if att_done and st.session_state.ecr_submitted and att_key in ATTACHMENT_TYPES:
-            at = ATTACHMENT_TYPES[att_key]
-            st.markdown(f"""
-            <div style="background:linear-gradient(135deg,#ECFDF5,#D1FAE5);border:1.5px solid #6EE7B7;
-                        border-radius:14px;padding:1.3rem 1.5rem;margin-bottom:1rem;">
-              <div style="font-size:1rem;font-weight:800;color:#065F46;margin-bottom:5px;">✅ 애착 유형 검사가 완료되었습니다</div>
-              <div style="font-size:.83rem;color:#047857;">아래에서 나의 애착 유형과 성장 방향을 확인하세요.</div>
-            </div>
-            <div class="card card-sm" style="border-left:4px solid {at['color']};margin-bottom:1.3rem;">
-              <div style="display:flex;align-items:flex-start;gap:14px;">
-                <div style="font-size:2.4rem;flex-shrink:0;margin-top:3px;">{at['icon']}</div>
-                <div style="flex:1;">
-                  <div style="font-size:1.05rem;font-weight:800;color:var(--t1);margin-bottom:7px;">{at['name']}</div>
-                  <div style="font-size:.83rem;color:var(--t2);line-height:1.72;margin-bottom:10px;">{at['summary']}</div>
-                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
-                    <div style="padding:.6rem .75rem;background:var(--sage-lt);border-radius:9px;border:1px solid #A5D6B4;">
-                      <div class="label-sm" style="margin-bottom:3px;color:var(--sage);">강점</div>
-                      <div style="font-size:.76rem;color:var(--t2);line-height:1.55;">{at['strength']}</div>
-                    </div>
-                    <div style="padding:.6rem .75rem;background:var(--amber-lt);border-radius:9px;border:1px solid #F0D080;">
-                      <div class="label-sm" style="margin-bottom:3px;color:var(--amber);">성장 방향</div>
-                      <div style="font-size:.76rem;color:var(--t2);line-height:1.55;">{at['growth']}</div>
-                    </div>
-                  </div>
-                  <div style="padding:.6rem .75rem;background:var(--indigo-lt);border-radius:9px;">
-                    <div class="label-sm" style="margin-bottom:3px;color:var(--indigo);">권장 상담 접근법</div>
-                    <div style="font-size:.76rem;color:var(--indigo-dark);line-height:1.55;">{at['therapy']}</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            """, unsafe_allow_html=True)
 
         # ── Info header ──
         st.markdown(f"""
@@ -1513,6 +1479,41 @@ with T3:
                 save_data(st.session_state.data)
                 st.session_state.ecr_submitted = True
                 st.rerun()
+
+        # ── Completion result card ──
+        if att_done and att_key in ATTACHMENT_TYPES:
+            at = ATTACHMENT_TYPES[att_key]
+            st.markdown("<div style='height:.8rem;'></div>", unsafe_allow_html=True)
+            st.markdown(f"""
+            <div style="background:linear-gradient(135deg,#ECFDF5,#D1FAE5);border:1.5px solid #6EE7B7;
+                        border-radius:14px;padding:1.3rem 1.5rem;margin-bottom:1rem;">
+              <div style="font-size:1rem;font-weight:800;color:#065F46;margin-bottom:5px;">✅ 애착 유형 검사가 완료되었습니다</div>
+              <div style="font-size:.83rem;color:#047857;">아래에서 나의 애착 유형과 성장 방향을 확인하세요.</div>
+            </div>
+            <div class="card card-sm" style="border-left:4px solid {at['color']};margin-bottom:1.3rem;">
+              <div style="display:flex;align-items:flex-start;gap:14px;">
+                <div style="font-size:2.4rem;flex-shrink:0;margin-top:3px;">{at['icon']}</div>
+                <div style="flex:1;">
+                  <div style="font-size:1.05rem;font-weight:800;color:var(--t1);margin-bottom:7px;">{at['name']}</div>
+                  <div style="font-size:.83rem;color:var(--t2);line-height:1.72;margin-bottom:10px;">{at['summary']}</div>
+                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+                    <div style="padding:.6rem .75rem;background:var(--sage-lt);border-radius:9px;border:1px solid #A5D6B4;">
+                      <div class="label-sm" style="margin-bottom:3px;color:var(--sage);">강점</div>
+                      <div style="font-size:.76rem;color:var(--t2);line-height:1.55;">{at['strength']}</div>
+                    </div>
+                    <div style="padding:.6rem .75rem;background:var(--amber-lt);border-radius:9px;border:1px solid #F0D080;">
+                      <div class="label-sm" style="margin-bottom:3px;color:var(--amber);">성장 방향</div>
+                      <div style="font-size:.76rem;color:var(--t2);line-height:1.55;">{at['growth']}</div>
+                    </div>
+                  </div>
+                  <div style="padding:.6rem .75rem;background:var(--indigo-lt);border-radius:9px;">
+                    <div class="label-sm" style="margin-bottom:3px;color:var(--indigo);">권장 상담 접근법</div>
+                    <div style="font-size:.76rem;color:var(--indigo-dark);line-height:1.55;">{at['therapy']}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            """, unsafe_allow_html=True)
 
     # ─── VALUES ──────────────────────────────────────────────
     with S3:
@@ -1623,42 +1624,6 @@ with T4:
     with Q1:
         temp_result = st.session_state.quiz_results.get("temperament")
 
-        if temp_result and temp_result in TEMP_TYPES:
-            tt = TEMP_TYPES[temp_result]
-            st.markdown(f"""
-            <div class="card" style="border-left:4px solid {tt['color']};margin-bottom:1.3rem;">
-              <div style="display:flex;align-items:flex-start;gap:14px;">
-                <div style="font-size:2.5rem;flex-shrink:0;margin-top:2px;">{tt['icon']}</div>
-                <div style="flex:1;">
-                  <div class="label-sm" style="color:{tt['color']};margin-bottom:4px;">나의 기질 유형 · Keirsey</div>
-                  <div style="font-size:1.05rem;font-weight:800;color:var(--t1);margin-bottom:4px;">{tt['name']}</div>
-                  <div style="font-size:.73rem;color:var(--t4);margin-bottom:8px;">{tt['population']} · {tt['core']}</div>
-                  <div style="font-size:.83rem;color:var(--t2);line-height:1.75;margin-bottom:10px;">{tt['desc']}</div>
-                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
-                    <div style="padding:.55rem .7rem;background:var(--sage-lt);border-radius:9px;">
-                      <div class="label-sm" style="color:var(--sage);margin-bottom:3px;">강점</div>
-                      <div style="font-size:.74rem;color:var(--t2);line-height:1.55;">{tt['strength']}</div>
-                    </div>
-                    <div style="padding:.55rem .7rem;background:var(--amber-lt);border-radius:9px;">
-                      <div class="label-sm" style="color:var(--amber);margin-bottom:3px;">성장 방향</div>
-                      <div style="font-size:.74rem;color:var(--t2);line-height:1.55;">{tt['growth']}</div>
-                    </div>
-                  </div>
-                  <div style="padding:.45rem .7rem;background:var(--indigo-lt);border-radius:8px;">
-                    <span class="label-sm" style="color:var(--indigo);">유사 MBTI:</span>
-                    <span style="font-size:.77rem;color:var(--indigo-dark);font-weight:700;margin-left:6px;">{tt['similar']}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            """, unsafe_allow_html=True)
-            if st.button("🔄  기질 나침반 다시 하기", key="retry_temp", use_container_width=True):
-                for k in [k for k in st.session_state.quiz_answers if k.startswith("temp_")]:
-                    del st.session_state.quiz_answers[k]
-                del st.session_state.quiz_results["temperament"]
-                st.rerun()
-            st.markdown("<hr>", unsafe_allow_html=True)
-
         st.markdown("""
         <div class="card card-inset" style="margin-bottom:1.2rem;">
           <div class="sec-title">기질 나침반 (Keirsey Temperament Sorter 기반)</div>
@@ -1707,41 +1672,45 @@ with T4:
             remaining = len(TEMP_Q) - sum(1 for i in range(len(TEMP_Q)) if f"temp_q{i}" in st.session_state.quiz_answers)
             st.markdown(f"<div style='text-align:center;font-size:.75rem;color:var(--t4);padding:.4rem;'>{remaining}문항이 남았습니다</div>", unsafe_allow_html=True)
 
+        if temp_result and temp_result in TEMP_TYPES:
+            tt = TEMP_TYPES[temp_result]
+            st.markdown("<div style='height:.6rem;'></div>", unsafe_allow_html=True)
+            st.markdown(f"""
+            <div class="card" style="border-left:4px solid {tt['color']};margin-bottom:1.3rem;">
+              <div style="display:flex;align-items:flex-start;gap:14px;">
+                <div style="font-size:2.5rem;flex-shrink:0;margin-top:2px;">{tt['icon']}</div>
+                <div style="flex:1;">
+                  <div class="label-sm" style="color:{tt['color']};margin-bottom:4px;">나의 기질 유형 · Keirsey</div>
+                  <div style="font-size:1.05rem;font-weight:800;color:var(--t1);margin-bottom:4px;">{tt['name']}</div>
+                  <div style="font-size:.73rem;color:var(--t4);margin-bottom:8px;">{tt['population']} · {tt['core']}</div>
+                  <div style="font-size:.83rem;color:var(--t2);line-height:1.75;margin-bottom:10px;">{tt['desc']}</div>
+                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+                    <div style="padding:.55rem .7rem;background:var(--sage-lt);border-radius:9px;">
+                      <div class="label-sm" style="color:var(--sage);margin-bottom:3px;">강점</div>
+                      <div style="font-size:.74rem;color:var(--t2);line-height:1.55;">{tt['strength']}</div>
+                    </div>
+                    <div style="padding:.55rem .7rem;background:var(--amber-lt);border-radius:9px;">
+                      <div class="label-sm" style="color:var(--amber);margin-bottom:3px;">성장 방향</div>
+                      <div style="font-size:.74rem;color:var(--t2);line-height:1.55;">{tt['growth']}</div>
+                    </div>
+                  </div>
+                  <div style="padding:.45rem .7rem;background:var(--indigo-lt);border-radius:8px;">
+                    <span class="label-sm" style="color:var(--indigo);">유사 MBTI:</span>
+                    <span style="font-size:.77rem;color:var(--indigo-dark);font-weight:700;margin-left:6px;">{tt['similar']}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            """, unsafe_allow_html=True)
+            if st.button("🔄  기질 나침반 다시 하기", key="retry_temp", use_container_width=True):
+                for k in [k for k in st.session_state.quiz_answers if k.startswith("temp_")]:
+                    del st.session_state.quiz_answers[k]
+                del st.session_state.quiz_results["temperament"]
+                st.rerun()
+
     # ─── ENNEAGRAM ────────────────────────────────────────────
     with Q2:
         ennea_result = st.session_state.quiz_results.get("enneagram")
-
-        if ennea_result:
-            ei = next((e for e in ENNEA_ITEMS if e["type"] == ennea_result), None)
-            if ei:
-                st.markdown(f"""
-                <div class="card" style="border-left:4px solid {ei['color']};margin-bottom:1.3rem;">
-                  <div style="display:flex;align-items:flex-start;gap:14px;">
-                    <div style="font-size:2.6rem;flex-shrink:0;margin-top:2px;">{ei['icon']}</div>
-                    <div style="flex:1;">
-                      <div class="label-sm" style="color:{ei['color']};margin-bottom:4px;">에니어그램 {ei['type']}번 유형</div>
-                      <div style="font-size:1.05rem;font-weight:800;color:var(--t1);margin-bottom:7px;">{ei['name']}</div>
-                      <div style="font-size:.83rem;color:var(--t2);line-height:1.75;margin-bottom:10px;">{ei['desc']}</div>
-                      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-                        <div style="padding:.55rem .7rem;background:var(--rose-lt);border-radius:9px;">
-                          <div class="label-sm" style="color:var(--rose);margin-bottom:3px;">핵심 두려움</div>
-                          <div style="font-size:.74rem;color:var(--t2);line-height:1.5;">{ei['core_fear']}</div>
-                        </div>
-                        <div style="padding:.55rem .7rem;background:var(--sage-lt);border-radius:9px;">
-                          <div class="label-sm" style="color:var(--sage);margin-bottom:3px;">핵심 욕구</div>
-                          <div style="font-size:.74rem;color:var(--t2);line-height:1.5;">{ei['core_desire']}</div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                """, unsafe_allow_html=True)
-            if st.button("🔄  에니어그램 다시 하기", key="retry_ennea", use_container_width=True):
-                for k in [k for k in st.session_state.quiz_answers if k.startswith("ennea_")]:
-                    del st.session_state.quiz_answers[k]
-                del st.session_state.quiz_results["enneagram"]
-                st.rerun()
-            st.markdown("<hr>", unsafe_allow_html=True)
 
         st.markdown("""
         <div class="card card-inset" style="margin-bottom:1.2rem;">
@@ -1792,40 +1761,41 @@ with T4:
             remaining_e = len(ENNEA_ITEMS) - sum(1 for i in range(len(ENNEA_ITEMS)) if f"ennea_{i}" in st.session_state.quiz_answers)
             st.markdown(f"<div style='text-align:center;font-size:.75rem;color:var(--t4);padding:.4rem;'>{remaining_e}문항이 남았습니다</div>", unsafe_allow_html=True)
 
-    # ─── STRESS PATTERN ───────────────────────────────────────
-    with Q3:
-        stress_result = st.session_state.quiz_results.get("stress")
-
-        if stress_result and stress_result in STRESS_TYPES:
-            stype = STRESS_TYPES[stress_result]
-            st.markdown(f"""
-            <div class="card" style="border-left:4px solid {stype['color']};margin-bottom:1.3rem;">
-              <div style="display:flex;align-items:flex-start;gap:14px;">
-                <div style="font-size:2.5rem;flex-shrink:0;margin-top:2px;">{stype['icon']}</div>
-                <div style="flex:1;">
-                  <div class="label-sm" style="color:{stype['color']};margin-bottom:4px;">나의 스트레스 반응 유형</div>
-                  <div style="font-size:1.05rem;font-weight:800;color:var(--t1);margin-bottom:8px;">{stype['name']}</div>
-                  <div style="font-size:.83rem;color:var(--t2);line-height:1.75;margin-bottom:10px;">{stype['desc']}</div>
-                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-                    <div style="padding:.55rem .7rem;background:var(--indigo-lt);border-radius:9px;">
-                      <div class="label-sm" style="color:var(--indigo);margin-bottom:3px;">성장 팁</div>
-                      <div style="font-size:.73rem;color:var(--indigo-dark);line-height:1.55;">{stype['tip']}</div>
-                    </div>
-                    <div style="padding:.55rem .7rem;background:var(--sage-lt);border-radius:9px;">
-                      <div class="label-sm" style="color:var(--sage);margin-bottom:3px;">권장 상담 접근</div>
-                      <div style="font-size:.73rem;color:var(--t2);line-height:1.55;">{stype['therapy']}</div>
+        if ennea_result:
+            ei = next((e for e in ENNEA_ITEMS if e["type"] == ennea_result), None)
+            if ei:
+                st.markdown("<div style='height:.6rem;'></div>", unsafe_allow_html=True)
+                st.markdown(f"""
+                <div class="card" style="border-left:4px solid {ei['color']};margin-bottom:1.3rem;">
+                  <div style="display:flex;align-items:flex-start;gap:14px;">
+                    <div style="font-size:2.6rem;flex-shrink:0;margin-top:2px;">{ei['icon']}</div>
+                    <div style="flex:1;">
+                      <div class="label-sm" style="color:{ei['color']};margin-bottom:4px;">에니어그램 {ei['type']}번 유형</div>
+                      <div style="font-size:1.05rem;font-weight:800;color:var(--t1);margin-bottom:7px;">{ei['name']}</div>
+                      <div style="font-size:.83rem;color:var(--t2);line-height:1.75;margin-bottom:10px;">{ei['desc']}</div>
+                      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                        <div style="padding:.55rem .7rem;background:var(--rose-lt);border-radius:9px;">
+                          <div class="label-sm" style="color:var(--rose);margin-bottom:3px;">핵심 두려움</div>
+                          <div style="font-size:.74rem;color:var(--t2);line-height:1.5;">{ei['core_fear']}</div>
+                        </div>
+                        <div style="padding:.55rem .7rem;background:var(--sage-lt);border-radius:9px;">
+                          <div class="label-sm" style="color:var(--sage);margin-bottom:3px;">핵심 욕구</div>
+                          <div style="font-size:.74rem;color:var(--t2);line-height:1.5;">{ei['core_desire']}</div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            </div>
-            """, unsafe_allow_html=True)
-            if st.button("🔄  스트레스 패턴 다시 하기", key="retry_stress", use_container_width=True):
-                for k in [k for k in st.session_state.quiz_answers if k.startswith("stress_")]:
+                """, unsafe_allow_html=True)
+            if st.button("🔄  에니어그램 다시 하기", key="retry_ennea", use_container_width=True):
+                for k in [k for k in st.session_state.quiz_answers if k.startswith("ennea_")]:
                     del st.session_state.quiz_answers[k]
-                del st.session_state.quiz_results["stress"]
+                del st.session_state.quiz_results["enneagram"]
                 st.rerun()
-            st.markdown("<hr>", unsafe_allow_html=True)
+
+    # ─── STRESS PATTERN ───────────────────────────────────────
+    with Q3:
+        stress_result = st.session_state.quiz_results.get("stress")
 
         st.markdown("""
         <div class="card card-inset" style="margin-bottom:1.2rem;">
@@ -1874,6 +1844,37 @@ with T4:
         elif not all_done_s:
             rem_s = len(STRESS_Q) - sum(1 for i in range(len(STRESS_Q)) if f"stress_{i}" in st.session_state.quiz_answers)
             st.markdown(f"<div style='text-align:center;font-size:.75rem;color:var(--t4);padding:.4rem;'>{rem_s}문항이 남았습니다</div>", unsafe_allow_html=True)
+
+        if stress_result and stress_result in STRESS_TYPES:
+            stype = STRESS_TYPES[stress_result]
+            st.markdown("<div style='height:.6rem;'></div>", unsafe_allow_html=True)
+            st.markdown(f"""
+            <div class="card" style="border-left:4px solid {stype['color']};margin-bottom:1.3rem;">
+              <div style="display:flex;align-items:flex-start;gap:14px;">
+                <div style="font-size:2.5rem;flex-shrink:0;margin-top:2px;">{stype['icon']}</div>
+                <div style="flex:1;">
+                  <div class="label-sm" style="color:{stype['color']};margin-bottom:4px;">나의 스트레스 반응 유형</div>
+                  <div style="font-size:1.05rem;font-weight:800;color:var(--t1);margin-bottom:8px;">{stype['name']}</div>
+                  <div style="font-size:.83rem;color:var(--t2);line-height:1.75;margin-bottom:10px;">{stype['desc']}</div>
+                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                    <div style="padding:.55rem .7rem;background:var(--indigo-lt);border-radius:9px;">
+                      <div class="label-sm" style="color:var(--indigo);margin-bottom:3px;">성장 팁</div>
+                      <div style="font-size:.73rem;color:var(--indigo-dark);line-height:1.55;">{stype['tip']}</div>
+                    </div>
+                    <div style="padding:.55rem .7rem;background:var(--sage-lt);border-radius:9px;">
+                      <div class="label-sm" style="color:var(--sage);margin-bottom:3px;">권장 상담 접근</div>
+                      <div style="font-size:.73rem;color:var(--t2);line-height:1.55;">{stype['therapy']}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            """, unsafe_allow_html=True)
+            if st.button("🔄  스트레스 패턴 다시 하기", key="retry_stress", use_container_width=True):
+                for k in [k for k in st.session_state.quiz_answers if k.startswith("stress_")]:
+                    del st.session_state.quiz_answers[k]
+                del st.session_state.quiz_results["stress"]
+                st.rerun()
 
 
 # ═══════════════════════════════════════════════════════════════
