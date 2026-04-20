@@ -360,6 +360,42 @@ hr { border-color: var(--border) !important; }
 """, unsafe_allow_html=True)
 
 # ══════════════════════════════════════════════════════════════
+# ─── DAILY PSYCHOLOGY QUOTES ─────────────────────────────────
+# ══════════════════════════════════════════════════════════════
+PSYCH_QUOTES = [
+    ("모든 감정은 정보다. 억압이 아니라 이해가 필요하다.", "Aaron Beck"),
+    ("자기 자신에게 친절한 것은 이기적인 것이 아니다. 그것이 모든 관계의 기초다.", "Carl Rogers"),
+    ("우리는 과거를 바꿀 수 없지만, 그것에 대한 반응을 바꿀 수 있다.", "Viktor Frankl"),
+    ("진정한 용기는 두려움이 없는 것이 아니라, 두려움 속에서도 행동하는 것이다.", "Brené Brown"),
+    ("감사함은 행복의 결과가 아니라, 행복의 원인이다.", "Robert Emmons"),
+    ("자기 인식은 변화의 첫 번째 단계다.", "Tasha Eurich"),
+    ("나는 내가 통제할 수 없는 것에 에너지를 낭비하지 않겠다.", "Epictetus"),
+    ("비교는 기쁨을 앗아가는 도둑이다.", "Theodore Roosevelt"),
+    ("마음챙김이란 판단 없이 현재 순간에 주의를 기울이는 것이다.", "Jon Kabat-Zinn"),
+    ("우리가 겪는 고통의 대부분은 피할 수 없지만, 그 고통에 대한 우리의 반응은 선택할 수 있다.", "Haruki Murakami"),
+    ("취약성은 약함이 아니라 용기의 탄생지다.", "Brené Brown"),
+    ("당신의 가장 큰 두려움은 당신이 가장 크게 성장할 수 있는 방향이다.", "Albert Ellis"),
+    ("감정을 느끼되, 감정에 의해 지배당하지 마라.", "Viktor Frankl"),
+    ("자기 수용은 변화의 역설적 조건이다.", "Carl Rogers"),
+    ("지금 이 순간이 유일하게 살 수 있는 순간이다.", "Thich Nhat Hanh"),
+    ("우리는 자신에 대해 말하는 이야기 속에서 살아간다.", "Dan McAdams"),
+    ("심리적 건강이란 불완전함을 받아들이는 능력이다.", "Donald Winnicott"),
+    ("연결감은 인간이 가진 가장 근본적인 욕구다.", "John Bowlby"),
+    ("행동이 감정을 따라가길 기다리지 마라. 행동하면 감정이 따라온다.", "William James"),
+    ("자신을 이해하는 것이 모든 지혜의 시작이다.", "Aristotle"),
+    ("우리의 자동적 사고가 현실을 왜곡할 때, 감정도 함께 왜곡된다.", "Aaron Beck"),
+    ("완벽주의는 성취의 엔진이 아니라 불안의 갑옷이다.", "Brené Brown"),
+    ("타인을 용서하는 것은 그들을 위해서가 아니라 자신을 위해서다.", "Fred Luskin"),
+    ("강점을 사용하는 삶이 가장 충만한 삶이다.", "Martin Seligman"),
+    ("작은 전진이 매일 쌓이면 결국 큰 변화가 된다.", "BJ Fogg"),
+    ("경험 자체보다 경험을 어떻게 해석하느냐가 더 중요하다.", "Albert Ellis"),
+    ("돌봄은 받는 것도 중요하지만 스스로에게 주는 것도 중요하다.", "Kristin Neff"),
+    ("우리는 감정을 두려워할 필요가 없다. 감정은 지나간다.", "Susan David"),
+    ("불안은 미래에 대한 현재의 반응이다. 지금에 집중하자.", "Daniel Levinson"),
+    ("진정성 있는 삶은 자신의 내면의 소리를 따르는 것이다.", "Carl Jung"),
+]
+
+# ══════════════════════════════════════════════════════════════
 # ─── CLINICAL DATA: Validated Psychological Scales ────────────
 # ══════════════════════════════════════════════════════════════
 
@@ -1110,6 +1146,22 @@ with T1:
     </div>
     """, unsafe_allow_html=True)
 
+    # ── 오늘의 심리 명언 ──
+    _q_idx = date.today().toordinal() % len(PSYCH_QUOTES)
+    _q_text, _q_author = PSYCH_QUOTES[_q_idx]
+    st.markdown(f"""
+    <div style="padding:.85rem 1.25rem;background:linear-gradient(135deg,var(--indigo-lt),#F5F3FF);
+                border-left:3px solid var(--indigo);border-radius:12px;margin-bottom:1.4rem;">
+      <div style="font-size:.68rem;font-weight:700;color:var(--indigo);letter-spacing:.07em;margin-bottom:5px;">
+        ✦ 오늘의 심리 명언
+      </div>
+      <div style="font-size:.9rem;color:var(--t1);font-style:italic;line-height:1.7;margin-bottom:5px;">
+        "{_q_text}"
+      </div>
+      <div style="font-size:.75rem;color:var(--t3);font-weight:600;">— {_q_author}</div>
+    </div>
+    """, unsafe_allow_html=True)
+
     col_info, col_right = st.columns([2, 3], gap="large")
 
     with col_info:
@@ -1330,6 +1382,52 @@ with T1:
               {pr["ai_summary"]}
             </div>
             """, unsafe_allow_html=True)
+
+    # ── AI 오늘의 성장 미션 ──
+    st.markdown("<div style='height:.6rem;'></div>", unsafe_allow_html=True)
+    mission_date = str(date.today())
+    saved_mission = pr.get("daily_mission", {})
+    mission_text  = saved_mission.get("text", "") if saved_mission.get("date") == mission_date else ""
+
+    mis_c1, mis_c2 = st.columns([5, 2])
+    with mis_c1:
+        st.markdown("<div class='sec-title' style='margin-bottom:2px;'>🎯 오늘의 성장 미션</div>", unsafe_allow_html=True)
+        st.markdown("<div class='sec-sub'>나의 심리 프로필에 맞춘 오늘 실천할 수 있는 작은 미션</div>", unsafe_allow_html=True)
+    with mis_c2:
+        if st.button("✨  미션 생성", type="primary", key="gen_mission", use_container_width=True):
+            with st.spinner("소이가 미션을 만드는 중..."):
+                res_m = call_gpt(
+                    [{"role":"user","content":(
+                        "내담자의 성격 프로파일, 애착 유형, 가치관 데이터를 바탕으로 "
+                        "오늘 하루 실천할 수 있는 구체적인 심리 성장 미션 1가지를 만들어 주세요.\n\n"
+                        "형식:\n"
+                        "• 미션 제목 (10자 이내)\n"
+                        "• 구체적 실천 방법 (2~3문장)\n"
+                        "• 이 미션이 왜 도움이 되는지 한 문장\n\n"
+                        "오늘 날짜 기준으로 일상에서 쉽게 할 수 있는 것으로 부탁드립니다."
+                    )}],
+                    system=build_system_prompt(), tokens=300,
+                )
+            st.session_state.data["profile"]["daily_mission"] = {"date": mission_date, "text": res_m}
+            save_data(st.session_state.data)
+            st.rerun()
+
+    if mission_text:
+        st.markdown(f"""
+        <div style="background:linear-gradient(135deg,#FFFBEB,#FEF3C7);border:1px solid #FDE68A;
+                    border-left:3px solid var(--amber);border-radius:12px;
+                    padding:1rem 1.2rem;margin-top:.6rem;line-height:1.8;
+                    font-size:.88rem;color:var(--t2);">
+          {mission_text.replace(chr(10), '<br>')}
+        </div>
+        """, unsafe_allow_html=True)
+    elif not (pr.get("bfi") or pr.get("attachment")):
+        st.markdown("""
+        <div style="padding:.7rem 1rem;background:var(--bg2);border-radius:9px;
+                    border:1px solid var(--border);margin-top:.5rem;">
+          <span style="font-size:.78rem;color:var(--t4);">💡 성격 심층 진단을 먼저 완료하면 더 맞춤화된 미션이 생성됩니다.</span>
+        </div>
+        """, unsafe_allow_html=True)
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -2352,6 +2450,62 @@ with T5:
             )
             st.markdown("<div class='card' style='padding:.9rem .8rem .4rem;'>", unsafe_allow_html=True)
             st.plotly_chart(fig_j, use_container_width=True)
+            st.markdown("</div>", unsafe_allow_html=True)
+
+        # ── 연속 기록 streak ──
+        if j_sorted:
+            all_dates = sorted({j.get("date","") for j in j_sorted if j.get("date")}, reverse=True)
+            streak = 0
+            check = date.today()
+            for d_str in all_dates:
+                if d_str == str(check):
+                    streak += 1
+                    check -= timedelta(days=1)
+                else:
+                    break
+            avg_mood = round(sum(j.get("mood",5) for j in j_sorted) / len(j_sorted), 1)
+            st.markdown(f"""
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:.8rem 0;">
+              <div style="padding:.7rem .9rem;background:linear-gradient(135deg,var(--indigo-lt),#F5F3FF);
+                          border-radius:10px;text-align:center;">
+                <div style="font-size:1.5rem;font-weight:800;color:var(--indigo);">{streak}일</div>
+                <div style="font-size:.7rem;color:var(--t3);font-weight:600;">🔥 연속 기록</div>
+              </div>
+              <div style="padding:.7rem .9rem;background:linear-gradient(135deg,var(--sage-lt),#D1FAE5);
+                          border-radius:10px;text-align:center;">
+                <div style="font-size:1.5rem;font-weight:800;color:var(--sage);">{avg_mood}</div>
+                <div style="font-size:.7rem;color:var(--t3);font-weight:600;">📊 평균 감정 강도</div>
+              </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+        # ── 감정 태그 빈도 분석 ──
+        all_tags = [t for j in j_sorted for t in j.get("tags", [])]
+        if all_tags:
+            tag_count = {}
+            for t in all_tags:
+                tag_count[t] = tag_count.get(t, 0) + 1
+            tag_sorted = sorted(tag_count.items(), key=lambda x: x[1], reverse=True)[:8]
+            t_labels = [x[0] for x in tag_sorted]
+            t_vals   = [x[1] for x in tag_sorted]
+            tag_colors = ["#BE123C","#5B4FCF","#B45309","#3D7A5F","#0369A1","#7C3AED","#D97706","#059669"]
+
+            fig_t = go.Figure(go.Bar(
+                x=t_vals, y=t_labels, orientation="h",
+                marker_color=tag_colors[:len(t_labels)],
+                text=t_vals, textposition="outside",
+                textfont=dict(size=9, color="#44403C"),
+            ))
+            fig_t.update_layout(
+                plot_bgcolor="white", paper_bgcolor="white",
+                margin=dict(t=5, b=5, l=5, r=30), height=max(120, len(t_labels)*28),
+                xaxis=dict(visible=False),
+                yaxis=dict(tickfont=dict(size=10, color="#44403C"), autorange="reversed"),
+                showlegend=False,
+            )
+            st.markdown("<div class='label-sm' style='margin:1rem 0 4px;'>자주 느끼는 감정 Top 8</div>", unsafe_allow_html=True)
+            st.markdown("<div class='card' style='padding:.7rem .6rem .3rem;'>", unsafe_allow_html=True)
+            st.plotly_chart(fig_t, use_container_width=True)
             st.markdown("</div>", unsafe_allow_html=True)
 
         if not j_sorted:
