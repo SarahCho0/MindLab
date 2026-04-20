@@ -1699,8 +1699,13 @@ with T1:
                 if st.button("✅ 확인", use_container_width=True, type="primary", key="reset_confirm_t1"):
                     if os.path.exists(DATA_FILE):
                         os.remove(DATA_FILE)
-                    for key in list(st.session_state.keys()):
-                        del st.session_state[key]
+                    _empty = {"profile":{"name":"","age_range":"","bfi":{},"attachment":None,"values":[],"ai_summary":""},"messages":[],"journals":[],"quiz_results":{}}
+                    st.session_state.data = _empty
+                    st.session_state.msgs = []
+                    st.session_state.bfi_submitted = False
+                    st.session_state.ecr_submitted = False
+                    st.session_state.quiz_answers = {}
+                    st.session_state.confirm_reset_all = False
                     st.rerun()
             with _conf2:
                 if st.button("취소", use_container_width=True, key="reset_cancel_t1"):
@@ -2181,8 +2186,13 @@ with T4:
                 if st.button("✅  확인, 전부 삭제", use_container_width=True, type="primary", key="reset_confirm_t4"):
                     if os.path.exists(DATA_FILE):
                         os.remove(DATA_FILE)
-                    for key in list(st.session_state.keys()):
-                        del st.session_state[key]
+                    _empty = {"profile":{"name":"","age_range":"","bfi":{},"attachment":None,"values":[],"ai_summary":""},"messages":[],"journals":[],"quiz_results":{}}
+                    st.session_state.data = _empty
+                    st.session_state.msgs = []
+                    st.session_state.bfi_submitted = False
+                    st.session_state.ecr_submitted = False
+                    st.session_state.quiz_answers = {}
+                    st.session_state.confirm_reset_all = False
                     st.rerun()
             with rc2:
                 if st.button("취소", use_container_width=True, key="reset_cancel_t4"):
