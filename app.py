@@ -840,8 +840,7 @@ if "quiz_answers" not in st.session_state:
     st.session_state.quiz_answers = {}
 if "quiz_results" not in st.session_state:
     st.session_state.quiz_results = dict(st.session_state.data.get("quiz_results", {}))
-if "returning_user_choice" not in st.session_state:
-    st.session_state.returning_user_choice = None
+# returning_user_choice는 data 파일 기반으로 관리 (session_state 불필요)
 
 # ── Helpers ──────────────────────────────────────────────────
 def get_client():
@@ -1016,7 +1015,8 @@ def _has_saved_data() -> bool:
         bool(d.get("messages"))
     )
 
-if st.session_state.returning_user_choice is None and _has_saved_data():
+# 환영 화면: 저장된 데이터가 있고, 아직 선택 안 한 경우에만 1회 표시
+if not st.session_state.data.get("welcomed") and _has_saved_data():
     pr_name = st.session_state.data["profile"].get("name", "")
     greeting = f"{pr_name} 님, 다시 오셨군요!" if pr_name else "다시 오셨군요!"
 
@@ -1072,7 +1072,8 @@ if st.session_state.returning_user_choice is None and _has_saved_data():
     btn_col1, btn_col2 = st.columns(2, gap="medium")
     with btn_col1:
         if st.button("📂  이전 기록 이어서 하기", use_container_width=True, type="primary"):
-            st.session_state.returning_user_choice = "continue"
+            st.session_state.data["welcomed"] = True
+            save_data(st.session_state.data)
             st.rerun()
     with btn_col2:
         if st.button("🔄  처음부터 다시하기", use_container_width=True):
