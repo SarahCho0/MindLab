@@ -1705,7 +1705,10 @@ with T1:
                     st.session_state.bfi_submitted = False
                     st.session_state.ecr_submitted = False
                     st.session_state.quiz_answers = {}
+                    st.session_state.quiz_results = {}
                     st.session_state.confirm_reset_all = False
+                    for _wk in ["p_name", "p_age", "j_del_confirm", "j_reset_confirm", "cal_selected"]:
+                        st.session_state.pop(_wk, None)
                     st.rerun()
             with _conf2:
                 if st.button("취소", use_container_width=True, key="reset_cancel_t1"):
@@ -2192,7 +2195,10 @@ with T4:
                     st.session_state.bfi_submitted = False
                     st.session_state.ecr_submitted = False
                     st.session_state.quiz_answers = {}
+                    st.session_state.quiz_results = {}
                     st.session_state.confirm_reset_all = False
+                    for _wk in ["p_name", "p_age", "j_del_confirm", "j_reset_confirm", "cal_selected"]:
+                        st.session_state.pop(_wk, None)
                     st.rerun()
             with rc2:
                 if st.button("취소", use_container_width=True, key="reset_cancel_t4"):
