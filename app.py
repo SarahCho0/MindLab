@@ -2780,7 +2780,7 @@ with T5:
                         else:
                             st.markdown(f'<div class="attach-item">📄 {uf.name} ({uf.size // 1024}KB)</div>', unsafe_allow_html=True)
 
-            # ── 저장 / AI 분석 버튼 ──────────────────────────
+            # ── 저장 / AI 분석 / 삭제 버튼 ─────────────────────
             sb1, sb2 = st.columns(2)
             with sb1:
                 if st.button("💾 저장하기", use_container_width=True, key="j_save"):
@@ -2843,6 +2843,29 @@ with T5:
                             journals.append(entry)
                         save_data(st.session_state.data)
                         st.rerun()
+
+            # ── 오늘 기록 삭제 ───────────────────────────────
+            if t_ent:
+                if "j_del_confirm" not in st.session_state:
+                    st.session_state.j_del_confirm = False
+                if not st.session_state.j_del_confirm:
+                    if st.button("🗑️ 오늘 기록 삭제", use_container_width=True, key="j_del_today"):
+                        st.session_state.j_del_confirm = True
+                        st.rerun()
+                else:
+                    st.warning("오늘 기록을 정말 삭제할까요?")
+                    dc1, dc2 = st.columns(2)
+                    with dc1:
+                        if st.button("✅ 삭제", use_container_width=True, key="j_del_confirm_yes", type="primary"):
+                            st.session_state.data["journals"] = [j for j in journals if j.get("date") != today_str]
+                            save_data(st.session_state.data)
+                            st.session_state.j_del_confirm = False
+                            st.success("삭제 완료!")
+                            st.rerun()
+                    with dc2:
+                        if st.button("✗ 취소", use_container_width=True, key="j_del_confirm_no"):
+                            st.session_state.j_del_confirm = False
+                            st.rerun()
 
         with jw_right:
             # ── 소이 AI 분석 결과 ────────────────────────────
@@ -3086,6 +3109,30 @@ with T5:
 
                 st.markdown("</div>", unsafe_allow_html=True)
 
+                # ── 선택 기록 삭제 버튼 ──────────────────────
+                del_key = f"cal_del_confirm_{sel_date}"
+                if del_key not in st.session_state:
+                    st.session_state[del_key] = False
+                if not st.session_state[del_key]:
+                    if st.button(f"🗑️ {sel_date} 기록 삭제", use_container_width=True, key=f"cal_del_{sel_date}"):
+                        st.session_state[del_key] = True
+                        st.rerun()
+                else:
+                    st.warning(f"{sel_date} 기록을 정말 삭제할까요?")
+                    cdc1, cdc2 = st.columns(2)
+                    with cdc1:
+                        if st.button("✅ 삭제", use_container_width=True, key=f"cal_del_yes_{sel_date}", type="primary"):
+                            st.session_state.data["journals"] = [j for j in journals if j.get("date") != sel_date]
+                            save_data(st.session_state.data)
+                            st.session_state[del_key] = False
+                            st.session_state.cal_selected = None
+                            st.success("삭제 완료!")
+                            st.rerun()
+                    with cdc2:
+                        if st.button("✗ 취소", use_container_width=True, key=f"cal_del_no_{sel_date}"):
+                            st.session_state[del_key] = False
+                            st.rerun()
+
         else:
             st.markdown("""
             <div class="empty">
@@ -3094,4 +3141,30 @@ with T5:
               <div class="empty-body">오늘의 감정을 첫 번째로 기록해 보세요!</div>
             </div>
             """, unsafe_allow_html=True)
+
+        # ── 전체 일지 초기화 ─────────────────────────────────
+        if journals:
+            st.markdown("<hr style='margin:1.5rem 0;border-color:#EDE9FE;'>", unsafe_allow_html=True)
+            with st.expander("⚙️ 전체 일지 초기화"):
+                st.warning(f"현재 **{len(journals)}개**의 일지가 저장되어 있습니다. 전체를 삭제하면 복구할 수 없어요.")
+                if "j_reset_confirm" not in st.session_state:
+                    st.session_state.j_reset_confirm = False
+                if not st.session_state.j_reset_confirm:
+                    if st.button("🗑️ 전체 일지 삭제", use_container_width=True, key="j_reset_all"):
+                        st.session_state.j_reset_confirm = True
+                        st.rerun()
+                else:
+                    st.error("모든 감정 일지가 영구 삭제됩니다. 계속할까요?")
+                    jr1, jr2 = st.columns(2)
+                    with jr1:
+                        if st.button("✅ 전체 삭제", use_container_width=True, key="j_reset_yes", type="primary"):
+                            st.session_state.data["journals"] = []
+                            save_data(st.session_state.data)
+                            st.session_state.j_reset_confirm = False
+                            st.success("전체 일지가 삭제되었습니다.")
+                            st.rerun()
+                    with jr2:
+                        if st.button("✗ 취소", use_container_width=True, key="j_reset_no"):
+                            st.session_state.j_reset_confirm = False
+                            st.rerun()
 
