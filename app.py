@@ -1123,7 +1123,7 @@ with T1:
             st.session_state.data["profile"]["name"] = new_name
             st.session_state.data["profile"]["age_range"] = new_age if new_age != "선택" else ""
             save_data(st.session_state.data)
-            st.toast("저장되었습니다.", icon="✓")
+            st.toast("저장되었습니다.", icon="✅")
 
         # ── 검사 현황 ──
         _all_steps = [
