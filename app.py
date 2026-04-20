@@ -112,6 +112,31 @@ html, body, [class*="css"] {
 }
 [data-testid="stSidebar"] > div:first-child { padding-top: 0; }
 [data-testid="stSidebar"] * { color: #A5B4FC !important; }
+/* 사이드바 열기 버튼 (접혔을 때 메인 화면에 표시) */
+[data-testid="collapsedControl"] {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  position: fixed !important;
+  left: 0 !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  z-index: 999999 !important;
+  width: 28px !important;
+  height: 64px !important;
+  background: linear-gradient(135deg,#4F46E5,#7C3AED) !important;
+  border-radius: 0 12px 12px 0 !important;
+  box-shadow: 3px 0 12px rgba(91,79,207,.5) !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+}
+[data-testid="collapsedControl"] svg {
+  fill: white !important;
+  color: white !important;
+  width: 16px !important;
+  height: 16px !important;
+}
 [data-testid="stSidebar"] hr {
   border: none !important;
   border-top: 1px solid rgba(255,255,255,0.08) !important;
@@ -1086,7 +1111,8 @@ if "quiz_answers" not in st.session_state:
     st.session_state.quiz_answers = {}
 if "quiz_results" not in st.session_state:
     st.session_state.quiz_results = dict(st.session_state.data.get("quiz_results", {}))
-# returning_user_choice는 data 파일 기반으로 관리 (session_state 불필요)
+if "form_v" not in st.session_state:
+    st.session_state.form_v = 0
 
 # ── Helpers ──────────────────────────────────────────────────
 def get_client():
@@ -1370,11 +1396,11 @@ with T1:
     with col_info:
         # ── 기본 정보 ──
         new_name = st.text_input("이름/닉네임", value=pr.get("name",""),
-                                 placeholder="어떻게 불러드릴까요?", key="p_name")
+                                 placeholder="어떻게 불러드릴까요?", key=f"p_name_{st.session_state.form_v}")
         age_options = ["선택", "10대", "20대 초반", "20대 후반", "30대", "40대", "50대 이상"]
         cur_age = pr.get("age_range", "선택")
         age_idx = age_options.index(cur_age) if cur_age in age_options else 0
-        new_age = st.selectbox("연령대", age_options, index=age_idx, key="p_age")
+        new_age = st.selectbox("연령대", age_options, index=age_idx, key=f"p_age_{st.session_state.form_v}")
         if st.button("저장", key="save_basic", use_container_width=True):
             st.session_state.data["profile"]["name"] = new_name
             st.session_state.data["profile"]["age_range"] = new_age if new_age != "선택" else ""
@@ -1707,8 +1733,7 @@ with T1:
                     st.session_state.quiz_answers = {}
                     st.session_state.quiz_results = {}
                     st.session_state.confirm_reset_all = False
-                    for _wk in ["p_name", "p_age", "j_del_confirm", "j_reset_confirm", "cal_selected"]:
-                        st.session_state.pop(_wk, None)
+                    st.session_state.form_v = st.session_state.get("form_v", 0) + 1
                     st.rerun()
             with _conf2:
                 if st.button("취소", use_container_width=True, key="reset_cancel_t1"):
@@ -1889,7 +1914,7 @@ with T3:
         </div>
         """, unsafe_allow_html=True)
 
-        with st.form("bfi_form", clear_on_submit=False):
+        with st.form(f"bfi_form_{st.session_state.form_v}", clear_on_submit=False):
             bfi_ans = {}
             cur_trait = None
             for idx, (trait, reverse, text) in enumerate(BFI_ITEMS):
@@ -1918,7 +1943,7 @@ with T3:
                 """, unsafe_allow_html=True)
                 bfi_ans[idx] = st.slider(
                     f"q{idx}", 1, 5, 3,
-                    key=f"bfi_{idx}",
+                    key=f"bfi_{st.session_state.form_v}_{idx}",
                     format="%d",
                     label_visibility="collapsed",
                 )
@@ -2003,7 +2028,7 @@ with T3:
 
         st.markdown("<div style='height:.6rem;'></div>", unsafe_allow_html=True)
 
-        with st.form("ecr_form", clear_on_submit=False):
+        with st.form(f"ecr_form_{st.session_state.form_v}", clear_on_submit=False):
             ecr_ans = {}
             st.markdown("""
             <div style="display:flex;gap:10px;margin-bottom:1rem;flex-wrap:wrap;">
@@ -2032,7 +2057,7 @@ with T3:
                 </div>
                 """, unsafe_allow_html=True)
                 ecr_ans[idx] = st.slider(
-                    f"ecr_q{idx}", 1, 5, 3, key=f"ecr_{idx}",
+                    f"ecr_q{idx}", 1, 5, 3, key=f"ecr_{st.session_state.form_v}_{idx}",
                     format="%d",
                     label_visibility="collapsed",
                 )
@@ -2133,7 +2158,7 @@ with T3:
             for i, v in enumerate(group_vals):
                 is_sel  = v in cur_vals
                 btn_lbl = ("✓  " if is_sel else "") + v
-                safe_k  = "val_" + v.replace(" ", "_")
+                safe_k  = f"val_{st.session_state.form_v}_" + v.replace(" ", "_")
                 btn_type = "primary" if is_sel else "secondary"
                 with col_map[i]:
                     if st.button(btn_lbl, key=safe_k, use_container_width=True, type=btn_type):
@@ -2197,8 +2222,7 @@ with T4:
                     st.session_state.quiz_answers = {}
                     st.session_state.quiz_results = {}
                     st.session_state.confirm_reset_all = False
-                    for _wk in ["p_name", "p_age", "j_del_confirm", "j_reset_confirm", "cal_selected"]:
-                        st.session_state.pop(_wk, None)
+                    st.session_state.form_v = st.session_state.get("form_v", 0) + 1
                     st.rerun()
             with rc2:
                 if st.button("취소", use_container_width=True, key="reset_cancel_t4"):
