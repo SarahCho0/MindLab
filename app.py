@@ -5,6 +5,8 @@
 import streamlit as st
 import json
 import os
+import calendar
+import base64
 from datetime import date, timedelta
 import plotly.graph_objects as go
 from openai import OpenAI
@@ -27,41 +29,68 @@ st.markdown("""
 
 /* ── TOKENS ── */
 :root {
-  --bg:          #F7F5F0;
-  --bg2:         #EFECE6;
+  --bg:          #F5F3FF;
+  --bg2:         #EDE9FE;
   --surface:     #FFFFFF;
-  --surface2:    #FDFCFA;
-  --border:      #E4DFD7;
-  --border2:     #D4CFC7;
-  --t1:          #1C1917;
-  --t2:          #44403C;
-  --t3:          #78716C;
-  --t4:          #A8A29E;
+  --surface2:    #FDFCFF;
+  --border:      #DDD6FE;
+  --border2:     #C4B5FD;
+  --t1:          #1E1B4B;
+  --t2:          #3730A3;
+  --t3:          #6D63CC;
+  --t4:          #A5A0D8;
 
-  --indigo:      #5B4FCF;
-  --indigo-lt:   #EEE9FF;
-  --indigo-mid:  #7C6FE8;
+  --indigo:      #6366F1;
+  --indigo-lt:   #EEF2FF;
+  --indigo-mid:  #818CF8;
   --indigo-dark: #3730A3;
 
-  --sage:        #3D7A5F;
-  --sage-lt:     #ECFDF5;
-  --sage-mid:    #6BAF8A;
+  --violet:      #8B5CF6;
+  --violet-lt:   #F5F3FF;
+  --pink:        #EC4899;
+  --pink-lt:     #FDF2F8;
+  --cyan:        #06B6D4;
+  --cyan-lt:     #ECFEFF;
 
-  --amber:       #B45309;
+  --sage:        #10B981;
+  --sage-lt:     #ECFDF5;
+  --sage-mid:    #34D399;
+
+  --amber:       #F59E0B;
   --amber-lt:    #FFFBEB;
 
-  --rose:        #BE123C;
+  --rose:        #F43F5E;
   --rose-lt:     #FFF1F2;
 
-  --sky:         #0369A1;
+  --sky:         #0EA5E9;
   --sky-lt:      #F0F9FF;
 
-  --r:           16px;
-  --r-sm:        10px;
-  --sh:          0 1px 3px rgba(28,25,23,.05), 0 4px 16px rgba(28,25,23,.04);
-  --sh-sm:       0 1px 2px rgba(28,25,23,.05);
-  --sh-lg:       0 4px 24px rgba(28,25,23,.07), 0 16px 48px rgba(28,25,23,.05);
+  --r:           18px;
+  --r-sm:        12px;
+  --sh:          0 1px 3px rgba(99,102,241,.07), 0 4px 20px rgba(99,102,241,.08);
+  --sh-sm:       0 1px 4px rgba(99,102,241,.06);
+  --sh-lg:       0 8px 32px rgba(99,102,241,.12), 0 20px 60px rgba(99,102,241,.08);
 }
+
+/* ── ANIMATIONS ── */
+@keyframes fadeInUp {
+  from { opacity:0; transform:translateY(14px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+@keyframes pulse-glow {
+  0%,100% { box-shadow: 0 0 0 0 rgba(99,102,241,.3); }
+  50%      { box-shadow: 0 0 0 8px rgba(99,102,241,.0); }
+}
+@keyframes float {
+  0%,100% { transform: translateY(0px); }
+  50%      { transform: translateY(-4px); }
+}
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+.fade-up  { animation: fadeInUp .45s ease both; }
+.float-fx { animation: float 3s ease-in-out infinite; }
 
 /* ── BASE ── */
 html, body, [class*="css"] {
@@ -72,61 +101,62 @@ html, body, [class*="css"] {
 .stDeployButton { display: none; }
 .stApp { background: var(--bg); }
 .main .block-container {
-  padding: 2.2rem 2.8rem 5rem;
-  max-width: 1240px;
+  padding: 2rem 2.8rem 5rem;
+  max-width: 1260px;
 }
 
 /* ── SIDEBAR ── */
 [data-testid="stSidebar"] {
-  background: #0F0D0B;
-  border-right: 1px solid rgba(255,255,255,0.04);
+  background: linear-gradient(180deg, #1E1B4B 0%, #312E81 100%);
+  border-right: 1px solid rgba(255,255,255,0.06);
 }
 [data-testid="stSidebar"] > div:first-child { padding-top: 0; }
-[data-testid="stSidebar"] * { color: #8A847E !important; }
+[data-testid="stSidebar"] * { color: #A5B4FC !important; }
 [data-testid="stSidebar"] hr {
   border: none !important;
-  border-top: 1px solid rgba(255,255,255,0.05) !important;
+  border-top: 1px solid rgba(255,255,255,0.08) !important;
   margin: .8rem 0 !important;
 }
 [data-testid="stSidebar"] .stButton > button {
-  background: rgba(91,79,207,.12) !important;
-  border: 1px solid rgba(91,79,207,.25) !important;
-  color: #B0A9E0 !important;
+  background: rgba(99,102,241,.15) !important;
+  border: 1px solid rgba(99,102,241,.3) !important;
+  color: #C7D2FE !important;
   border-radius: 10px !important;
   font-size: .83rem !important;
   font-weight: 500 !important;
   transition: all .2s !important;
 }
 [data-testid="stSidebar"] .stButton > button:hover {
-  background: rgba(91,79,207,.22) !important;
-  color: #DDD8FF !important;
+  background: rgba(99,102,241,.28) !important;
+  color: #E0E7FF !important;
   transform: translateX(2px) !important;
 }
 
 /* ── TABS ── */
 .stTabs [data-baseweb="tab-list"] {
   background: var(--surface) !important;
-  border-radius: 14px !important;
-  padding: 4px !important;
-  gap: 2px !important;
+  border-radius: 16px !important;
+  padding: 5px !important;
+  gap: 3px !important;
   border: 1px solid var(--border) !important;
   box-shadow: var(--sh-sm) !important;
   margin-bottom: 2rem !important;
 }
 .stTabs [data-baseweb="tab"] {
-  border-radius: 10px !important;
-  padding: .48rem 1.2rem !important;
+  border-radius: 12px !important;
+  padding: .5rem 1.2rem !important;
   font-size: .84rem !important;
   font-weight: 500 !important;
   color: var(--t3) !important;
   background: transparent !important;
   border: none !important;
+  transition: all .2s !important;
 }
 .stTabs [aria-selected="true"] {
-  background: var(--t1) !important;
+  background: linear-gradient(135deg, var(--indigo), var(--violet)) !important;
   color: white !important;
   font-weight: 700 !important;
-  box-shadow: 0 1px 6px rgba(28,25,23,.18) !important;
+  box-shadow: 0 2px 10px rgba(99,102,241,.35) !important;
 }
 .stTabs [data-baseweb="tab-highlight"],
 .stTabs [data-baseweb="tab-border"] { display: none !important; }
@@ -146,7 +176,9 @@ div[data-testid="stHorizontalBlock"] .stTabs [data-baseweb="tab-list"] {
   border: 1px solid var(--border);
   box-shadow: var(--sh);
   margin-bottom: .8rem;
+  transition: transform .2s, box-shadow .2s;
 }
+.card:hover { transform: translateY(-1px); box-shadow: var(--sh-lg); }
 .card-sm { padding: 1.1rem 1.3rem; border-radius: var(--r-sm); }
 .card-inset {
   background: var(--bg);
@@ -155,30 +187,132 @@ div[data-testid="stHorizontalBlock"] .stTabs [data-baseweb="tab-list"] {
   border: 1px solid var(--border);
 }
 .card-indigo {
-  background: linear-gradient(135deg, #F0ECFF 0%, #E8E1FF 100%);
-  border-color: #C9C0F0;
+  background: linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%);
+  border-color: #C7D2FE;
+}
+.card-violet {
+  background: linear-gradient(135deg, #F5F3FF 0%, #EDE9FE 100%);
+  border-color: #C4B5FD;
 }
 .card-sage {
-  background: linear-gradient(135deg, #EDFDF5 0%, #D9FAE9 100%);
-  border-color: #A5D6B4;
+  background: linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%);
+  border-color: #6EE7B7;
 }
 .card-amber {
   background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%);
-  border-color: #F0D080;
+  border-color: #FCD34D;
+}
+.card-pink {
+  background: linear-gradient(135deg, #FDF2F8 0%, #FCE7F3 100%);
+  border-color: #F9A8D4;
+}
+.card-cyan {
+  background: linear-gradient(135deg, #ECFEFF 0%, #CFFAFE 100%);
+  border-color: #67E8F9;
+}
+.card-fun {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
 }
 .left-bar-indigo { border-left: 3px solid var(--indigo); }
 .left-bar-sage   { border-left: 3px solid var(--sage); }
 .left-bar-amber  { border-left: 3px solid var(--amber); }
+.left-bar-violet { border-left: 3px solid var(--violet); }
+.left-bar-pink   { border-left: 3px solid var(--pink); }
+
+/* ── HERO SECTION ── */
+.hero-banner {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #ec4899 100%);
+  border-radius: 22px;
+  padding: 2rem 2.4rem;
+  color: white;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 1.6rem;
+  box-shadow: 0 8px 32px rgba(99,102,241,.3);
+}
+.hero-banner::before {
+  content: '';
+  position: absolute; top: -40%; right: -10%;
+  width: 300px; height: 300px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.07);
+}
+.hero-banner::after {
+  content: '';
+  position: absolute; bottom: -30%; left: 20%;
+  width: 200px; height: 200px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.05);
+}
+
+/* ── MOOD BUTTONS ── */
+.mood-btn-wrap { display: flex; gap: 8px; flex-wrap: wrap; margin: .8rem 0; }
+.mood-emoji-card {
+  display: flex; flex-direction: column; align-items: center;
+  padding: .7rem .9rem;
+  border-radius: 14px;
+  border: 2px solid var(--border);
+  background: var(--surface);
+  cursor: pointer;
+  transition: all .2s;
+  min-width: 64px;
+}
+.mood-emoji-card:hover { border-color: var(--indigo); transform: scale(1.06); box-shadow: var(--sh); }
+.mood-emoji-card.selected {
+  border-color: var(--indigo); background: var(--indigo-lt);
+  box-shadow: 0 0 0 3px rgba(99,102,241,.2);
+}
+
+/* ── ACHIEVEMENT BADGE ── */
+.badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  border-radius: 999px; padding: 5px 13px;
+  font-size: .74rem; font-weight: 700;
+  animation: fadeInUp .4s ease both;
+}
+.badge-gold   { background: linear-gradient(135deg,#FEF3C7,#FDE68A); color: #92400E; border: 1px solid #FCD34D; }
+.badge-purple { background: linear-gradient(135deg,#EDE9FE,#DDD6FE); color: #4C1D95; border: 1px solid #C4B5FD; }
+.badge-green  { background: linear-gradient(135deg,#D1FAE5,#A7F3D0); color: #065F46; border: 1px solid #6EE7B7; }
+.badge-pink   { background: linear-gradient(135deg,#FCE7F3,#FBCFE8); color: #831843; border: 1px solid #F9A8D4; }
+
+/* ── STAT PILL ── */
+.stat-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(255,255,255,.18); backdrop-filter: blur(4px);
+  border: 1px solid rgba(255,255,255,.25);
+  border-radius: 999px; padding: 5px 14px;
+  font-size: .78rem; font-weight: 700; color: white;
+}
+
+/* ── FUN TYPE CARD ── */
+.type-card {
+  border-radius: 16px; padding: 1.2rem 1.4rem;
+  position: relative; overflow: hidden;
+  transition: transform .2s, box-shadow .2s;
+}
+.type-card:hover { transform: translateY(-2px); box-shadow: var(--sh-lg); }
+
+/* ── COMPAT RING ── */
+.compat-wrap { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.compat-ring {
+  width: 56px; height: 56px; border-radius: 50%;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  font-size: 1.4rem; border: 3px solid;
+  transition: transform .2s;
+}
+.compat-ring:hover { transform: scale(1.12); }
 
 /* ── TYPOGRAPHY ── */
 .page-eyebrow {
   font-size: .68rem; font-weight: 700; color: var(--indigo);
-  text-transform: uppercase; letter-spacing: .12em; margin-bottom: 6px;
+  text-transform: uppercase; letter-spacing: .14em; margin-bottom: 6px;
 }
 .page-title {
   font-family: 'Lora', Georgia, serif;
-  font-size: 1.7rem; font-weight: 600; color: var(--t1);
-  letter-spacing: -.02em; line-height: 1.2; margin-bottom: 6px;
+  font-size: 1.75rem; font-weight: 600; color: var(--t1);
+  letter-spacing: -.025em; line-height: 1.2; margin-bottom: 6px;
 }
 .page-desc { font-size: .86rem; color: var(--t3); line-height: 1.7; }
 .sec-title { font-size: .95rem; font-weight: 700; color: var(--t1); letter-spacing: -.01em; }
@@ -245,13 +379,17 @@ div[data-testid="stHorizontalBlock"] .stTabs [data-baseweb="tab-list"] {
 /* ── CHIP ── */
 .chip {
   display: inline-flex; align-items: center; gap: 3px;
-  border-radius: 999px; padding: 3px 10px;
-  font-size: .71rem; font-weight: 600; margin: 2px;
+  border-radius: 999px; padding: 3px 11px;
+  font-size: .72rem; font-weight: 700; margin: 2px;
+  transition: transform .15s;
 }
+.chip:hover { transform: scale(1.05); }
 .chip-indigo { background: var(--indigo-lt); color: var(--indigo-dark); }
 .chip-sage   { background: var(--sage-lt); color: var(--sage); }
-.chip-amber  { background: var(--amber-lt); color: var(--amber); }
+.chip-amber  { background: var(--amber-lt); color: #92400E; }
 .chip-rose   { background: var(--rose-lt); color: var(--rose); }
+.chip-violet { background: var(--violet-lt); color: #5B21B6; }
+.chip-pink   { background: var(--pink-lt); color: #831843; }
 
 /* ── ATTACHMENT CARD ── */
 .att-card {
@@ -293,23 +431,25 @@ div[data-testid="stHorizontalBlock"] .stTabs [data-baseweb="tab-list"] {
   border: 1px solid var(--border);
   box-shadow: var(--sh);
   overflow: hidden; position: relative;
+  transition: transform .2s;
 }
+.kpi-card:hover { transform: translateY(-2px); box-shadow: var(--sh-lg); }
 .kpi-top { height: 3px; position: absolute; top: 0; left: 0; right: 0; border-radius: var(--r) var(--r) 0 0; }
 .kpi-val { font-size: 1.9rem; font-weight: 800; color: var(--t1); letter-spacing: -.05em; line-height: 1; margin-top: 4px; }
 .kpi-lbl { font-size: .67rem; font-weight: 700; color: var(--t4); text-transform: uppercase; letter-spacing: .1em; margin-top: 6px; }
 .kpi-sub { font-size: .74rem; color: var(--t3); margin-top: 2px; }
 
 /* ── PROGRESS (sidebar) ── */
-.sb-bar-bg   { background: rgba(255,255,255,.06); border-radius: 999px; height: 4px; }
-.sb-bar-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg,#5B4FCF,#9B8EF0); }
-.sb-stat { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,.04); }
+.sb-bar-bg   { background: rgba(255,255,255,.1); border-radius: 999px; height: 4px; }
+.sb-bar-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg,#818CF8,#A78BFA); }
+.sb-stat { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,.06); }
 .sb-stat:last-child { border-bottom: none; }
 
 /* ── INPUTS & BUTTONS ── */
 .stTextInput > div > div > input,
 .stTextArea > div > div > textarea {
-  border-radius: 11px !important;
-  border: 1px solid var(--border) !important;
+  border-radius: 12px !important;
+  border: 1.5px solid var(--border) !important;
   background: white !important;
   color: var(--t1) !important;
   font-size: .88rem !important;
@@ -318,37 +458,38 @@ div[data-testid="stHorizontalBlock"] .stTabs [data-baseweb="tab-list"] {
 .stTextInput > div > div > input:focus,
 .stTextArea > div > div > textarea:focus {
   border-color: var(--indigo) !important;
-  box-shadow: 0 0 0 3px rgba(91,79,207,.1) !important;
+  box-shadow: 0 0 0 3px rgba(99,102,241,.12) !important;
   outline: none !important;
 }
 .stButton > button {
-  border-radius: 10px !important;
+  border-radius: 12px !important;
   font-weight: 600 !important;
   font-size: .85rem !important;
-  border: 1px solid var(--border) !important;
+  border: 1.5px solid var(--border) !important;
   background: white !important;
   color: var(--t2) !important;
   transition: all .2s !important;
 }
 .stButton > button:hover {
-  border-color: var(--border2) !important;
+  border-color: var(--indigo) !important;
+  color: var(--indigo) !important;
   box-shadow: var(--sh) !important;
-}
-.stButton > button[kind="primary"] {
-  background: var(--t1) !important;
-  color: white !important;
-  border-color: var(--t1) !important;
-  box-shadow: 0 2px 8px rgba(28,25,23,.2) !important;
-}
-.stButton > button[kind="primary"]:hover {
-  background: #2C2924 !important;
-  box-shadow: 0 4px 14px rgba(28,25,23,.28) !important;
   transform: translateY(-1px) !important;
 }
-[data-testid="stForm"] .stButton > button {
-  background: var(--t1) !important;
+.stButton > button[kind="primary"] {
+  background: linear-gradient(135deg, var(--indigo), var(--violet)) !important;
   color: white !important;
-  border-color: var(--t1) !important;
+  border-color: transparent !important;
+  box-shadow: 0 3px 12px rgba(99,102,241,.3) !important;
+}
+.stButton > button[kind="primary"]:hover {
+  box-shadow: 0 5px 18px rgba(99,102,241,.42) !important;
+  transform: translateY(-2px) !important;
+}
+[data-testid="stForm"] .stButton > button {
+  background: linear-gradient(135deg, var(--indigo), var(--violet)) !important;
+  color: white !important;
+  border-color: transparent !important;
 }
 [data-testid="stSlider"] { margin: .2rem 0 .4rem; }
 [data-baseweb="tag"] { background: var(--indigo-lt) !important; border-radius: 7px !important; }
@@ -543,6 +684,75 @@ MOOD_MAP = {
     7: ("😄", "#4ADE80"), 8: ("😁", "#22C55E"), 9: ("🌟", "#0EA5E9"),
     10: ("✨", "#8B5CF6"),
 }
+
+# ── 감정 태그별 테마 ─────────────────────────────────────────
+EMOTION_THEMES = {
+    "기쁨":   {"bg":"linear-gradient(135deg,#FEF9C3,#FDE68A)","color":"#92400E","border":"#F59E0B","font":"'Lora', Georgia, serif",    "icon":"☀️","particle":"✨🌟⭐","desc":"따뜻한 햇살이 내려쬐는 하루"},
+    "슬픔":   {"bg":"linear-gradient(135deg,#DBEAFE,#BFDBFE)","color":"#1E40AF","border":"#60A5FA","font":"'Lora', Georgia, serif",    "icon":"🌧️","particle":"💧🌊🌀","desc":"감정을 흘려보내도 괜찮아요"},
+    "분노":   {"bg":"linear-gradient(135deg,#FEE2E2,#FECACA)","color":"#991B1B","border":"#F87171","font":"'Noto Sans KR', sans-serif","icon":"🌋","particle":"🔥💥⚡","desc":"이 감정도 소중한 신호예요"},
+    "불안":   {"bg":"linear-gradient(135deg,#F3E8FF,#E9D5FF)","color":"#6B21A8","border":"#C084FC","font":"'Noto Sans KR', sans-serif","icon":"🌀","particle":"🌿🍃🌱","desc":"지금 이 순간에 머물러요"},
+    "두려움": {"bg":"linear-gradient(135deg,#1E1B4B,#312E81)","color":"#E0E7FF","border":"#818CF8","font":"'Lora', Georgia, serif",    "icon":"🌑","particle":"⭐🌙✦","desc":"어둠 속에도 별은 빛나요"},
+    "수치심": {"bg":"linear-gradient(135deg,#FCE7F3,#FBCFE8)","color":"#831843","border":"#F472B6","font":"'Lora', Georgia, serif",    "icon":"🌸","particle":"🌺🌹💗","desc":"있는 그대로의 당신이 소중해요"},
+    "죄책감": {"bg":"linear-gradient(135deg,#ECFDF5,#D1FAE5)","color":"#065F46","border":"#34D399","font":"'Lora', Georgia, serif",    "icon":"🌿","particle":"🍀🌿🌾","desc":"스스로를 용서하는 연습을 해요"},
+    "외로움": {"bg":"linear-gradient(135deg,#EFF6FF,#DBEAFE)","color":"#1E3A8A","border":"#93C5FD","font":"'Lora', Georgia, serif",    "icon":"🌙","particle":"🌙⭐🕊️","desc":"혼자이지만 연결되어 있어요"},
+    "설렘":   {"bg":"linear-gradient(135deg,#FFF7ED,#FFEDD5)","color":"#C2410C","border":"#FB923C","font":"'Lora', Georgia, serif",    "icon":"✨","particle":"🎉🎊🌈","desc":"두근거리는 마음을 즐겨요"},
+    "무감각": {"bg":"linear-gradient(135deg,#F9FAFB,#F3F4F6)","color":"#374151","border":"#9CA3AF","font":"'Noto Sans KR', sans-serif","icon":"☁️","particle":"☁️🌫️💭","desc":"무감각도 하나의 감정이에요"},
+    "혼란":   {"bg":"linear-gradient(135deg,#FEF3C7,#FDE68A)","color":"#78350F","border":"#F59E0B","font":"'Noto Sans KR', sans-serif","icon":"🌪️","particle":"🌪️🌀💫","desc":"혼란 속에서 답을 찾고 있어요"},
+    "안도":   {"bg":"linear-gradient(135deg,#ECFDF5,#A7F3D0)","color":"#065F46","border":"#10B981","font":"'Lora', Georgia, serif",    "icon":"🌤️","particle":"🌈🌤️🍃","desc":"한숨 돌려도 괜찮아요"},
+}
+
+def get_soi_character(mood_val, tags):
+    """감정에 따라 소이 캐릭터 SVG 반환"""
+    # 주요 감정 결정
+    primary_emotion = tags[0] if tags else None
+    # 표정 결정
+    if mood_val >= 8 or primary_emotion in ("기쁨", "설렘", "안도"):
+        eyes = '<circle cx="38" cy="52" r="5" fill="#1E1B4B"/><circle cx="62" cy="52" r="5" fill="#1E1B4B"/><path d="M36 64 Q50 76 64 64" stroke="#1E1B4B" stroke-width="3" fill="none" stroke-linecap="round"/>'
+        blush = '<ellipse cx="30" cy="62" rx="8" ry="5" fill="#FFB7C5" opacity="0.6"/><ellipse cx="70" cy="62" rx="8" ry="5" fill="#FFB7C5" opacity="0.6"/>'
+        hat_extra = '<text x="50" y="22" font-size="18" text-anchor="middle">🌟</text>'
+        bg_color = "#FFF9C4"
+        speech = tags[0] + " 감정을 느끼고 있군요! 잘 표현해줬어요 ✨" if tags else "오늘 기분이 좋아 보여요! 😊"
+    elif mood_val <= 3 or primary_emotion in ("슬픔", "두려움", "외로움"):
+        eyes = '<path d="M33 52 Q38 48 43 52" stroke="#1E1B4B" stroke-width="2.5" fill="none"/><path d="M57 52 Q62 48 67 52" stroke="#1E1B4B" stroke-width="2.5" fill="none"/><path d="M36 68 Q50 62 64 68" stroke="#1E1B4B" stroke-width="2.5" fill="none"/>'
+        blush = '<ellipse cx="30" cy="62" rx="7" ry="4" fill="#A5B4FC" opacity="0.5"/><ellipse cx="70" cy="62" rx="7" ry="4" fill="#A5B4FC" opacity="0.5"/>'
+        hat_extra = '<text x="50" y="22" font-size="18" text-anchor="middle">💙</text>'
+        bg_color = "#EFF6FF"
+        speech = "힘든 감정도 괜찮아요. 여기 있을게요 🫂"
+    elif primary_emotion in ("분노", "혼란"):
+        eyes = '<path d="M33 50 L43 54" stroke="#1E1B4B" stroke-width="3"/><path d="M57 54 L67 50" stroke="#1E1B4B" stroke-width="3"/><circle cx="38" cy="54" r="4" fill="#1E1B4B"/><circle cx="62" cy="54" r="4" fill="#1E1B4B"/><path d="M38 66 Q50 60 62 66" stroke="#1E1B4B" stroke-width="2.5" fill="none"/>'
+        blush = '<ellipse cx="30" cy="64" rx="7" ry="4" fill="#FCA5A5" opacity="0.5"/><ellipse cx="70" cy="64" rx="7" ry="4" fill="#FCA5A5" opacity="0.5"/>'
+        hat_extra = '<text x="50" y="22" font-size="18" text-anchor="middle">💪</text>'
+        bg_color = "#FEF2F2"
+        speech = "그 감정 충분히 이해해요. 같이 살펴볼까요? 🔥"
+    elif primary_emotion in ("불안", "수치심", "죄책감"):
+        eyes = '<circle cx="38" cy="52" r="5" fill="#1E1B4B"/><circle cx="62" cy="52" r="5" fill="#1E1B4B"/><circle cx="39" cy="51" r="2" fill="white"/><circle cx="63" cy="51" r="2" fill="white"/><path d="M40 66 Q50 70 60 66" stroke="#1E1B4B" stroke-width="2" fill="none"/>'
+        blush = '<ellipse cx="30" cy="62" rx="7" ry="4" fill="#DDD6FE" opacity="0.7"/><ellipse cx="70" cy="62" rx="7" ry="4" fill="#DDD6FE" opacity="0.7"/>'
+        hat_extra = '<text x="50" y="22" font-size="18" text-anchor="middle">🤝</text>'
+        bg_color = "#F5F3FF"
+        speech = "판단 없이 들을게요. 마음 편히 적어요 💜"
+    else:
+        eyes = '<circle cx="38" cy="52" r="5" fill="#1E1B4B"/><circle cx="62" cy="52" r="5" fill="#1E1B4B"/><path d="M38 65 Q50 72 62 65" stroke="#1E1B4B" stroke-width="2.5" fill="none"/>'
+        blush = '<ellipse cx="30" cy="62" rx="7" ry="4" fill="#FDE68A" opacity="0.5"/><ellipse cx="70" cy="62" rx="7" ry="4" fill="#FDE68A" opacity="0.5"/>'
+        hat_extra = '<text x="50" y="22" font-size="18" text-anchor="middle">📓</text>'
+        bg_color = "#FFFBEB"
+        speech = "오늘 감정을 기록해 볼까요? 소이가 함께할게요 🌿"
+
+    svg = f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="120" height="120">
+  <circle cx="50" cy="50" r="48" fill="{bg_color}"/>
+  <circle cx="50" cy="55" r="32" fill="#FFEAA7"/>
+  <circle cx="50" cy="55" r="32" fill="url(#face_grad)"/>
+  <defs>
+    <radialGradient id="face_grad" cx="50%" cy="40%"><stop offset="0%" stop-color="#FFF9C4"/><stop offset="100%" stop-color="#FFEAA7"/></radialGradient>
+  </defs>
+  <ellipse cx="50" cy="30" rx="22" ry="20" fill="#6366F1"/>
+  <ellipse cx="50" cy="28" rx="19" ry="16" fill="#4F46E5"/>
+  <rect x="28" y="28" width="44" height="8" rx="4" fill="#312E81"/>
+  {hat_extra}
+  {blush}
+  {eyes}
+</svg>'''
+    return svg, speech, bg_color
+
 
 COUNSELING_QUICK = [
     "나의 가장 큰 강점은 무엇인가요?",
@@ -1039,39 +1249,6 @@ with st.sidebar:
 
     st.divider()
 
-    # ── 전체 검사 초기화 ──
-    st.markdown("""
-    <div style="font-size:.66rem;color:#3A3530;font-weight:700;letter-spacing:.06em;margin-bottom:6px;text-transform:uppercase;">
-      검사 초기화
-    </div>
-    """, unsafe_allow_html=True)
-
-    if "confirm_reset_all" not in st.session_state:
-        st.session_state.confirm_reset_all = False
-
-    if not st.session_state.confirm_reset_all:
-        if st.button("🔄  모든 검사 처음부터 다시하기", use_container_width=True):
-            st.session_state.confirm_reset_all = True
-            st.rerun()
-    else:
-        st.markdown("""
-        <div style="font-size:.75rem;color:#FBBF24;line-height:1.5;margin-bottom:6px;">
-          ⚠️ 모든 검사 결과와 프로필이 삭제됩니다. 정말 초기화할까요?
-        </div>
-        """, unsafe_allow_html=True)
-        rc1, rc2 = st.columns(2, gap="small")
-        with rc1:
-            if st.button("✅ 확인", use_container_width=True, type="primary"):
-                if os.path.exists(DATA_FILE):
-                    os.remove(DATA_FILE)
-                for key in list(st.session_state.keys()):
-                    del st.session_state[key]
-                st.rerun()
-        with rc2:
-            if st.button("취소", use_container_width=True):
-                st.session_state.confirm_reset_all = False
-                st.rerun()
-
 # ═══════════════════════════════════════════════════════════════
 # ─── RETURNING USER CHECK ──────────────────────────────────────
 # ═══════════════════════════════════════════════════════════════
@@ -1172,28 +1349,103 @@ T1, T2, T3, T4, T5 = st.tabs([
 # ═══════════════════════════════════════════════════════════════
 with T1:
     pr = st.session_state.data["profile"]
+    name = pr.get("name", "")
+    _done_list = [bool(pr.get("bfi")), bool(pr.get("attachment")), bool(pr.get("values")),
+                  bool(st.session_state.quiz_results.get("temperament")),
+                  bool(st.session_state.quiz_results.get("enneagram")),
+                  bool(st.session_state.quiz_results.get("stress"))]
+    _done_n = sum(_done_list)
 
-    st.markdown("""
-    <div style="margin-bottom:1.2rem;">
-      <div class="page-eyebrow">심리 프로파일링</div>
-      <div class="page-title">나의 심리 프로필</div>
-      <div class="page-desc">임상심리학에서 검증된 척도를 기반으로 나의 성격·애착·가치관을 통합적으로 이해합니다.</div>
+    # ── 히어로 배너 ──
+    _greeting = f"안녕하세요, {name}님! 👋" if name else "마음 연구소에 오신 것을 환영해요 ✨"
+    _sub = f"오늘도 나를 조금 더 알아가는 시간 — {_done_n}/6개 검사 완료"
+    j_n_hero = len(st.session_state.data.get("journals", []))
+    c_n_hero = len(st.session_state.msgs) // 2
+    qr_hero  = st.session_state.quiz_results
+
+    # 대표 타입 한 줄
+    _type_line = ""
+    if qr_hero.get("temperament"):
+        tt = TEMP_TYPES.get(qr_hero["temperament"], {})
+        _type_line = f'{tt.get("icon","🧭")} {tt.get("name","")}'
+    if pr.get("attachment"):
+        at = ATTACHMENT_TYPES.get(pr["attachment"], {})
+        _type_line += f'　{at.get("icon","💞")} {at.get("name","")}'
+
+    st.markdown(f"""
+    <div class="hero-banner fade-up">
+      <div style="position:relative;z-index:1;">
+        <div style="font-size:.72rem;font-weight:700;letter-spacing:.12em;opacity:.75;text-transform:uppercase;margin-bottom:6px;">
+          ◎ 마음 연구소
+        </div>
+        <div style="font-size:1.55rem;font-weight:800;letter-spacing:-.03em;line-height:1.25;margin-bottom:.4rem;">
+          {_greeting}
+        </div>
+        <div style="font-size:.88rem;opacity:.85;margin-bottom:1rem;">{_sub}</div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:{'0.5rem' if _type_line else '0'};">
+          <div class="stat-pill">🗓 일지 {j_n_hero}편</div>
+          <div class="stat-pill">💬 상담 {c_n_hero}회</div>
+          <div class="stat-pill">🧩 검사 {_done_n}/6</div>
+        </div>
+        {"<div style='font-size:.82rem;opacity:.8;margin-top:.3rem;'>"+_type_line+"</div>" if _type_line else ""}
+      </div>
     </div>
     """, unsafe_allow_html=True)
+
+    # ── 오늘의 기분 체크인 ──
+    if "today_mood" not in st.session_state:
+        st.session_state.today_mood = None
+
+    _mood_opts = [("😫","최악"), ("😔","별로"), ("😐","보통"), ("😊","좋아"), ("🤩","최고")]
+    st.markdown("""
+    <div style="font-size:.82rem;font-weight:700;color:var(--indigo);letter-spacing:.06em;
+                text-transform:uppercase;margin-bottom:.5rem;">✦ 오늘 기분은 어때요?</div>
+    """, unsafe_allow_html=True)
+    _mc = st.columns(5)
+    for _i, (_em, _lb) in enumerate(_mood_opts):
+        with _mc[_i]:
+            _selected = st.session_state.today_mood == _i
+            _btn_label = f"{_em}\n{_lb}" if not _selected else f"✓ {_em}"
+            if st.button(_btn_label, key=f"mood_{_i}", use_container_width=True,
+                         type="primary" if _selected else "secondary"):
+                st.session_state.today_mood = _i
+                st.rerun()
+
+    if st.session_state.today_mood is not None:
+        _em2, _lb2 = _mood_opts[st.session_state.today_mood]
+        _mood_msgs = [
+            "힘든 하루네요. 소이에게 이야기해 보는 건 어떨까요? 💜",
+            "그럴 수 있어요. 오늘 하루를 조금 더 부드럽게 돌봐줘요.",
+            "평온한 하루네요. 감정 일지에 기록해 두면 좋을 것 같아요 📓",
+            "기분이 좋군요! 오늘의 성장 미션을 해보는 건 어떨까요? 🎯",
+            "에너지가 넘치는 날이에요! 이 기운을 새로운 검사에 써 보세요 🚀",
+        ]
+        st.markdown(f"""
+        <div style="background:linear-gradient(135deg,var(--indigo-lt),var(--violet-lt));
+                    border:1px solid var(--border2);border-radius:14px;
+                    padding:.8rem 1.2rem;margin:.5rem 0 1.2rem;display:flex;align-items:center;gap:12px;">
+          <span style="font-size:1.8rem;">{_em2}</span>
+          <div>
+            <div style="font-size:.84rem;font-weight:700;color:var(--indigo-dark);">오늘 기분: {_lb2}</div>
+            <div style="font-size:.8rem;color:var(--t3);margin-top:2px;">{_mood_msgs[st.session_state.today_mood]}</div>
+          </div>
+        </div>
+        """, unsafe_allow_html=True)
 
     # ── 오늘의 심리 명언 ──
     _q_idx = date.today().toordinal() % len(PSYCH_QUOTES)
     _q_text, _q_author = PSYCH_QUOTES[_q_idx]
     st.markdown(f"""
-    <div style="padding:.85rem 1.25rem;background:linear-gradient(135deg,var(--indigo-lt),#F5F3FF);
-                border-left:3px solid var(--indigo);border-radius:12px;margin-bottom:1.4rem;">
-      <div style="font-size:.68rem;font-weight:700;color:var(--indigo);letter-spacing:.07em;margin-bottom:5px;">
+    <div style="padding:.9rem 1.3rem;background:linear-gradient(135deg,var(--indigo-lt),#F5F3FF);
+                border-left:4px solid var(--indigo);border-radius:14px;margin-bottom:1.4rem;
+                box-shadow:var(--sh-sm);">
+      <div style="font-size:.68rem;font-weight:700;color:var(--indigo);letter-spacing:.09em;margin-bottom:5px;">
         ✦ 오늘의 심리 명언
       </div>
-      <div style="font-size:.9rem;color:var(--t1);font-style:italic;line-height:1.7;margin-bottom:5px;">
+      <div style="font-size:.92rem;color:var(--t1);font-style:italic;line-height:1.75;margin-bottom:5px;">
         "{_q_text}"
       </div>
-      <div style="font-size:.75rem;color:var(--t3);font-weight:600;">— {_q_author}</div>
+      <div style="font-size:.76rem;color:var(--t3);font-weight:600;">— {_q_author}</div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -1325,61 +1577,91 @@ with T1:
                 </div>
                 """, unsafe_allow_html=True)
 
-            # Quiz results summary
+            # ── 재미있는 퀴즈 결과 카드 ──
             qr = st.session_state.quiz_results
             quiz_cards = []
             if qr.get("temperament") and qr["temperament"] in TEMP_TYPES:
                 tt = TEMP_TYPES[qr["temperament"]]
-                quiz_cards.append(f"<span style='font-size:.85rem;'>{tt['icon']}</span> <b>{tt['name']}</b>")
+                quiz_cards.append((tt['icon'], tt['name'], tt['color'], tt.get('core','')))
             if qr.get("enneagram"):
                 ei = next((e for e in ENNEA_ITEMS if e["type"] == qr["enneagram"]), None)
                 if ei:
-                    quiz_cards.append(f"<span style='font-size:.85rem;'>{ei['icon']}</span> {ei['type']}번 · <b>{ei['name']}</b>")
+                    quiz_cards.append((ei['icon'], f"{ei['type']}번 · {ei['name']}", ei.get('color','#6366F1'), ei.get('core','')))
             if qr.get("stress") and qr["stress"] in STRESS_TYPES:
                 st2 = STRESS_TYPES[qr["stress"]]
-                quiz_cards.append(f"<span style='font-size:.85rem;'>{st2['icon']}</span> <b>{st2['name']}</b>")
+                quiz_cards.append((st2['icon'], st2['name'], st2['color'], st2.get('desc','')))
             if quiz_cards:
-                rows = "".join(f"<div style='font-size:.8rem;color:var(--t2);padding:4px 0;border-bottom:1px solid var(--border);'>{c}</div>" for c in quiz_cards)
-                st.markdown(f"""
-                <div class="card card-sm" style="margin-top:.3rem;">
-                  <div class="label-sm" style="margin-bottom:7px;">탐색 테스트 결과</div>
-                  {rows}
-                </div>
-                """, unsafe_allow_html=True)
+                for _ic, _nm, _cl, _core in quiz_cards:
+                    st.markdown(f"""
+                    <div class="card card-sm" style="border-left:4px solid {_cl};margin-top:.4rem;
+                                background:linear-gradient(135deg,#FAFAFA,#F5F3FF);">
+                      <div style="display:flex;align-items:center;gap:10px;">
+                        <span style="font-size:1.6rem;">{_ic}</span>
+                        <div>
+                          <div style="font-size:.85rem;font-weight:700;color:var(--t1);">{_nm}</div>
+                          <div style="font-size:.74rem;color:var(--t3);margin-top:2px;line-height:1.5;">{_core[:50]}{"..." if len(_core)>50 else ""}</div>
+                        </div>
+                      </div>
+                    </div>
+                    """, unsafe_allow_html=True)
+
+            # ── 궁합 미니 카드 ──
+            if qr.get("temperament") and qr["temperament"] in TEMP_TYPES:
+                tt2 = TEMP_TYPES[qr["temperament"]]
+                compat = tt2.get("compatible", {})
+                best_types = compat.get("best", [])
+                if best_types:
+                    best_html = "".join(
+                        f"<span style='display:inline-flex;align-items:center;gap:4px;"
+                        f"background:var(--sage-lt);color:var(--sage);border-radius:999px;"
+                        f"padding:3px 10px;font-size:.72rem;font-weight:700;margin:2px;'>"
+                        f"💚 {TEMP_TYPES.get(bt,{}).get('name',bt)}</span>"
+                        for bt in best_types
+                    )
+                    st.markdown(f"""
+                    <div class="card card-sm card-sage" style="margin-top:.4rem;">
+                      <div style="font-size:.7rem;font-weight:700;color:var(--sage);letter-spacing:.06em;margin-bottom:5px;">✨ 나와 잘 맞는 유형</div>
+                      {best_html}
+                      <div style="font-size:.73rem;color:var(--t3);margin-top:6px;line-height:1.5;">{tt2.get('compatible_desc',{}).get('best','')}</div>
+                    </div>
+                    """, unsafe_allow_html=True)
         else:
-            # Onboarding — no empty whitespace
+            # Onboarding 가이드
             _steps2 = [
-                ("🔬 성격 심층 진단 탭", "Big Five 검사 (BFI-44)", bool(pr.get("bfi"))),
-                ("🔬 성격 심층 진단 탭", "애착 유형 검사 (ECR-R)", bool(pr.get("attachment"))),
-                ("🔬 성격 심층 진단 탭", "핵심 가치 선택 (Schwartz)", bool(pr.get("values"))),
-                ("🧩 심리 탐색 테스트 탭", "기질 나침반 검사", bool(st.session_state.quiz_results.get("temperament"))),
-                ("🧩 심리 탐색 테스트 탭", "에니어그램 핵심 유형", bool(st.session_state.quiz_results.get("enneagram"))),
-                ("🧩 심리 탐색 테스트 탭", "나의 스트레스 패턴", bool(st.session_state.quiz_results.get("stress"))),
+                ("🔬 성격 심층 진단 탭", "Big Five 검사 (BFI-44)", bool(pr.get("bfi")), "#6366F1"),
+                ("🔬 성격 심층 진단 탭", "애착 유형 검사 (ECR-R)", bool(pr.get("attachment")), "#EC4899"),
+                ("🔬 성격 심층 진단 탭", "핵심 가치 선택 (Schwartz)", bool(pr.get("values")), "#F59E0B"),
+                ("🧩 심리 탐색 테스트 탭", "기질 나침반 검사", bool(st.session_state.quiz_results.get("temperament")), "#06B6D4"),
+                ("🧩 심리 탐색 테스트 탭", "에니어그램 핵심 유형", bool(st.session_state.quiz_results.get("enneagram")), "#8B5CF6"),
+                ("🧩 심리 탐색 테스트 탭", "나의 스트레스 패턴", bool(st.session_state.quiz_results.get("stress")), "#10B981"),
             ]
-            _d2 = sum(1 for *_, done in _steps2 if done)
+            _d2 = sum(1 for *_, done, _ in _steps2 if done)
             _p2 = int(_d2 / len(_steps2) * 100)
             st.markdown(f"""
-            <div style="background:linear-gradient(135deg,#F4F1FF,#EEE9FF);border:1px solid #C9C0F0;
-                        border-radius:14px;padding:1.3rem 1.4rem;margin-bottom:.8rem;">
-              <div class="label-sm" style="color:var(--indigo);margin-bottom:6px;">PROFILE COMPLETION</div>
-              <div style="font-size:2rem;font-weight:900;color:var(--t1);letter-spacing:-.05em;line-height:1;">{_p2}<span style="font-size:.9rem;font-weight:700;">%</span></div>
-              <div style="background:rgba(91,79,207,.15);border-radius:999px;height:5px;margin:8px 0;">
-                <div style="width:{_p2}%;height:100%;background:var(--indigo);border-radius:999px;"></div>
+            <div style="background:linear-gradient(135deg,#6366F1,#8B5CF6);border-radius:16px;
+                        padding:1.4rem 1.6rem;margin-bottom:1rem;color:white;box-shadow:0 6px 20px rgba(99,102,241,.28);">
+              <div style="font-size:.68rem;font-weight:700;letter-spacing:.1em;opacity:.8;margin-bottom:4px;">PROFILE COMPLETION</div>
+              <div style="font-size:2.4rem;font-weight:900;letter-spacing:-.05em;line-height:1;">{_p2}<span style="font-size:1rem;font-weight:700;">%</span></div>
+              <div style="background:rgba(255,255,255,.2);border-radius:999px;height:5px;margin:8px 0;">
+                <div style="width:{_p2}%;height:100%;background:white;border-radius:999px;"></div>
               </div>
-              <div style="font-size:.76rem;color:var(--indigo-dark);">{_d2}/{len(_steps2)}개 검사 완료 — 검사를 완료할수록 AI 상담이 정확해집니다</div>
+              <div style="font-size:.76rem;opacity:.85;">{_d2}/{len(_steps2)}개 완료 — 검사 완료할수록 AI 상담이 정확해집니다</div>
             </div>
             """, unsafe_allow_html=True)
             _last_tab = ""
-            for tab_label, test_name, is_done in _steps2:
+            for tab_label, test_name, is_done, _col in _steps2:
                 if tab_label != _last_tab:
                     st.markdown(f"<div class='label-sm' style='margin:{('1rem' if _last_tab else '.3rem')} 0 5px;'>{tab_label}</div>", unsafe_allow_html=True)
                     _last_tab = tab_label
+                _dot = f"<span style='width:8px;height:8px;border-radius:50%;background:{_col};flex-shrink:0;display:inline-block;'></span>" if is_done else "<span style='width:8px;height:8px;border-radius:50%;border:2px solid #C4B5FD;flex-shrink:0;display:inline-block;'></span>"
                 _chip = "<span class='chip chip-sage' style='font-size:.6rem;margin-left:auto;'>완료</span>" if is_done else "<span class='chip chip-amber' style='font-size:.6rem;margin-left:auto;'>미완료</span>"
                 st.markdown(f"""
-                <div style="display:flex;align-items:center;gap:9px;padding:6px 10px;background:var(--surface);
-                            border:1px solid var(--border);border-radius:9px;margin-bottom:5px;">
-                  <span style="font-size:.8rem;">{'✅' if is_done else '⬜'}</span>
-                  <span style="font-size:.82rem;color:{'var(--t1)' if is_done else 'var(--t2)'};">{test_name}</span>
+                <div style="display:flex;align-items:center;gap:9px;padding:7px 11px;background:var(--surface);
+                            border:1.5px solid {''+_col+'' if is_done else 'var(--border)'};border-radius:11px;margin-bottom:5px;
+                            box-shadow:{'0 2px 8px rgba(99,102,241,.1)' if is_done else 'none'};
+                            transition:all .2s;">
+                  {_dot}
+                  <span style="font-size:.82rem;color:{'var(--t1)' if is_done else 'var(--t3)'};">{test_name}</span>
                   {_chip}
                 </div>
                 """, unsafe_allow_html=True)
@@ -1390,7 +1672,7 @@ with T1:
         st.markdown("<div style='height:.4rem;'></div>", unsafe_allow_html=True)
         ai_c1, ai_c2 = st.columns([5, 2])
         with ai_c1:
-            st.markdown("<div class='sec-title' style='margin-bottom:2px;'>AI 심층 성격 분석</div>", unsafe_allow_html=True)
+            st.markdown("<div class='sec-title' style='margin-bottom:2px;'>🧠 AI 심층 성격 분석</div>", unsafe_allow_html=True)
             st.markdown("<div class='sec-sub'>임상심리학적 관점에서 나의 성격 데이터를 종합적으로 해석합니다</div>", unsafe_allow_html=True)
         with ai_c2:
             if st.button("◎  분석 생성", type="primary", key="gen_summary", use_container_width=True):
@@ -1411,9 +1693,10 @@ with T1:
                 st.rerun()
         if pr.get("ai_summary"):
             st.markdown(f"""
-            <div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--indigo);
-                        border-radius:12px;padding:1.1rem 1.3rem;margin-top:.6rem;line-height:1.85;
-                        font-size:.88rem;color:var(--t2);box-shadow:var(--sh-sm);">
+            <div style="background:linear-gradient(135deg,var(--indigo-lt),var(--violet-lt));
+                        border:1.5px solid var(--border2);border-left:4px solid var(--indigo);
+                        border-radius:14px;padding:1.2rem 1.4rem;margin-top:.6rem;line-height:1.88;
+                        font-size:.88rem;color:var(--t2);box-shadow:var(--sh);">
               {pr["ai_summary"]}
             </div>
             """, unsafe_allow_html=True)
@@ -1449,20 +1732,64 @@ with T1:
 
     if mission_text:
         st.markdown(f"""
-        <div style="background:linear-gradient(135deg,#FFFBEB,#FEF3C7);border:1px solid #FDE68A;
-                    border-left:3px solid var(--amber);border-radius:12px;
-                    padding:1rem 1.2rem;margin-top:.6rem;line-height:1.8;
-                    font-size:.88rem;color:var(--t2);">
+        <div style="background:linear-gradient(135deg,#FFFBEB,#FEF3C7);
+                    border:1.5px solid #FCD34D;border-left:4px solid var(--amber);border-radius:14px;
+                    padding:1.1rem 1.3rem;margin-top:.6rem;line-height:1.8;
+                    font-size:.88rem;color:#78350F;box-shadow:0 3px 12px rgba(245,158,11,.12);">
+          <div style="font-size:.68rem;font-weight:700;letter-spacing:.08em;color:var(--amber);margin-bottom:6px;">🎯 오늘의 미션</div>
           {mission_text.replace(chr(10), '<br>')}
         </div>
         """, unsafe_allow_html=True)
     elif not (pr.get("bfi") or pr.get("attachment")):
         st.markdown("""
-        <div style="padding:.7rem 1rem;background:var(--bg2);border-radius:9px;
-                    border:1px solid var(--border);margin-top:.5rem;">
-          <span style="font-size:.78rem;color:var(--t4);">💡 성격 심층 진단을 먼저 완료하면 더 맞춤화된 미션이 생성됩니다.</span>
+        <div style="padding:.75rem 1.1rem;background:var(--bg2);border-radius:12px;
+                    border:1.5px dashed var(--border2);margin-top:.5rem;">
+          <span style="font-size:.8rem;color:var(--t3);">💡 성격 심층 진단을 먼저 완료하면 더 맞춤화된 미션이 생성됩니다.</span>
         </div>
         """, unsafe_allow_html=True)
+
+    # ── 데이터 관리 (초기화) ──
+    st.markdown("<div style='height:1.5rem;'></div>", unsafe_allow_html=True)
+    st.markdown("""
+    <div style="border-top:1.5px dashed var(--border2);padding-top:1rem;margin-top:.5rem;">
+      <div style="font-size:.72rem;font-weight:700;color:var(--t4);letter-spacing:.08em;text-transform:uppercase;margin-bottom:.7rem;">
+        ⚙️ 데이터 관리
+      </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    if "confirm_reset_all" not in st.session_state:
+        st.session_state.confirm_reset_all = False
+
+    _rc1, _rc2, _rc3 = st.columns([3, 2, 2], gap="small")
+    with _rc1:
+        st.markdown("""
+        <div style="font-size:.82rem;color:var(--t3);padding:.4rem 0;line-height:1.55;">
+          모든 검사 결과·프로필·일지·상담 기록을 초기화합니다.<br>
+          <span style="color:var(--rose);font-weight:600;">되돌릴 수 없으니 신중하게 진행하세요.</span>
+        </div>
+        """, unsafe_allow_html=True)
+    with _rc2:
+        if not st.session_state.confirm_reset_all:
+            if st.button("🔄  초기화 시작", use_container_width=True, key="reset_start_t1"):
+                st.session_state.confirm_reset_all = True
+                st.rerun()
+        else:
+            st.warning("⚠️ 정말 삭제할까요?")
+    with _rc3:
+        if st.session_state.confirm_reset_all:
+            _conf1, _conf2 = st.columns(2, gap="small")
+            with _conf1:
+                if st.button("✅ 확인", use_container_width=True, type="primary", key="reset_confirm_t1"):
+                    if os.path.exists(DATA_FILE):
+                        os.remove(DATA_FILE)
+                    for key in list(st.session_state.keys()):
+                        del st.session_state[key]
+                    st.rerun()
+            with _conf2:
+                if st.button("취소", use_container_width=True, key="reset_cancel_t1"):
+                    st.session_state.confirm_reset_all = False
+                    st.rerun()
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -1916,6 +2243,36 @@ with T4:
     </div>
     """, unsafe_allow_html=True)
 
+    # ── 전체 검사 초기화 ──
+    if "confirm_reset_all" not in st.session_state:
+        st.session_state.confirm_reset_all = False
+
+    with st.expander("🔄  모든 검사 처음부터 다시하기"):
+        st.markdown("""
+        <div style="font-size:.83rem;color:var(--t2);line-height:1.6;margin-bottom:.8rem;">
+          모든 검사 결과, 프로필, 감정 일지, 상담 기록이 <b>전부 삭제</b>됩니다.<br>
+          이 작업은 되돌릴 수 없습니다.
+        </div>
+        """, unsafe_allow_html=True)
+        if not st.session_state.confirm_reset_all:
+            if st.button("⚠️  초기화 시작", use_container_width=True, key="reset_start_t4"):
+                st.session_state.confirm_reset_all = True
+                st.rerun()
+        else:
+            st.warning("정말 모든 데이터를 삭제할까요? 되돌릴 수 없습니다.")
+            rc1, rc2 = st.columns(2, gap="small")
+            with rc1:
+                if st.button("✅  확인, 전부 삭제", use_container_width=True, type="primary", key="reset_confirm_t4"):
+                    if os.path.exists(DATA_FILE):
+                        os.remove(DATA_FILE)
+                    for key in list(st.session_state.keys()):
+                        del st.session_state[key]
+                    st.rerun()
+            with rc2:
+                if st.button("취소", use_container_width=True, key="reset_cancel_t4"):
+                    st.session_state.confirm_reset_all = False
+                    st.rerun()
+
     Q1, Q2, Q3 = st.tabs([
         "🧭  기질 나침반 (12Q)",
         "🔢  에니어그램 (9Q)",
@@ -2322,252 +2679,503 @@ with T4:
 # TAB 5 · EMOTIONAL JOURNAL
 # ═══════════════════════════════════════════════════════════════
 with T5:
+    # ── CSS for journal ─────────────────────────────────────────
     st.markdown("""
-    <div style="margin-bottom:1.8rem;">
-      <div class="page-eyebrow">감정 일지</div>
-      <div class="page-title">오늘의 감정 기록</div>
-      <div class="page-desc">
-        감정을 언어로 표현하는 것은 감정 조절의 핵심 기술입니다 (Pennebaker, 1997).<br>
-        꾸준한 감정 일지는 자기 인식과 심리적 회복탄력성을 높입니다.
-      </div>
-    </div>
+    <style>
+    .j-cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:3px; text-align:center; }
+    .j-cal-head { font-size:.65rem; font-weight:700; color:var(--t3); padding:3px 0; }
+    .j-cal-day  { font-size:.72rem; padding:5px 2px; border-radius:7px; position:relative; cursor:pointer; min-height:34px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; }
+    .j-cal-day.has-entry { background:linear-gradient(135deg,var(--indigo-lt),#F0EBFF); border:1px solid var(--indigo); font-weight:700; color:var(--indigo); }
+    .j-cal-day.today { background:var(--indigo); color:white !important; font-weight:800; }
+    .j-cal-dot  { width:5px; height:5px; border-radius:50%; background:var(--pink); }
+    .j-cal-empty{ font-size:.6rem; color:#D1D5DB; }
+    .theme-panel{ padding:1.2rem 1.4rem; border-radius:16px; margin-bottom:1rem; transition:all .4s ease; }
+    .emotion-tag-btn { display:inline-block; padding:5px 14px; border-radius:20px; font-size:.8rem; font-weight:600; cursor:pointer; margin:3px; border:2px solid transparent; transition:all .2s; }
+    .attach-preview { display:flex; flex-wrap:wrap; gap:8px; margin-top:.8rem; }
+    .attach-item { background:#F8F7FF; border:1px solid #C4B5FD; border-radius:10px; padding:8px 12px; font-size:.78rem; display:flex; align-items:center; gap:6px; }
+    .soi-bubble { background:white; border-radius:16px 16px 16px 4px; padding:.7rem 1rem; font-size:.8rem; line-height:1.6; box-shadow:0 2px 12px rgba(99,102,241,.12); max-width:200px; color:var(--t2); font-weight:500; }
+    .entry-card-themed { border-radius:14px; padding:1rem 1.2rem; margin-bottom:.8rem; border:1.5px solid; transition:all .3s; }
+    .cal-nav-btn { background:none; border:none; font-size:1.2rem; cursor:pointer; padding:4px 8px; border-radius:6px; }
+    .cal-nav-btn:hover { background:var(--indigo-lt); }
+    </style>
     """, unsafe_allow_html=True)
 
-    jl, jr = st.columns([5, 4], gap="large")
+    today_str = str(date.today())
+    journals  = st.session_state.data.get("journals", [])
 
-    with jl:
-        today_str = str(date.today())
-        journals  = st.session_state.data.get("journals", [])
-        t_ent     = next((j for j in journals if j.get("date") == today_str), None)
+    # ── 탭 분리 ────────────────────────────────────────────────
+    J_WRITE, J_CAL = st.tabs(["✍️  오늘 기록", "📅  달력으로 보기"])
 
-        st.markdown("<div class='sec-title'>오늘 기록</div><div class='sec-sub'>솔직하고 자유롭게 — 맞춤법도 완성도도 신경 쓰지 않아도 됩니다.</div>", unsafe_allow_html=True)
+    # ══════════════════════════════════════════════════════════
+    # WRITE TAB
+    # ══════════════════════════════════════════════════════════
+    with J_WRITE:
+        t_ent = next((j for j in journals if j.get("date") == today_str), None)
+        cur_tags = list(t_ent.get("tags", [])) if t_ent else []
 
-        # Mood
-        mood_val = st.slider("현재 감정 강도", 1, 10,
-                             value=t_ent["mood"] if t_ent else 5,
-                             key="mood_sl")
-        em, col = MOOD_MAP[mood_val]
-        mood_phrasing = (
-            "매우 좋음" if mood_val >= 9 else "좋음" if mood_val >= 7
-            else "보통" if mood_val >= 5 else "낮음" if mood_val >= 3 else "매우 낮음"
+        # ── 감정 테마 계산 ───────────────────────────────────
+        active_theme = EMOTION_THEMES.get(cur_tags[0]) if cur_tags else None
+        theme_bg     = active_theme["bg"]     if active_theme else "linear-gradient(135deg,#F5F3FF,#EDE9FE)"
+        theme_color  = active_theme["color"]  if active_theme else "var(--t1)"
+        theme_border = active_theme["border"] if active_theme else "#C4B5FD"
+        theme_font   = active_theme["font"]   if active_theme else "'Noto Sans KR',sans-serif"
+        theme_icon   = active_theme["icon"]   if active_theme else "📓"
+        theme_desc   = active_theme["desc"]   if active_theme else "오늘의 감정을 자유롭게 기록해요"
+        theme_particle = active_theme["particle"] if active_theme else "✨💫🌿"
+
+        # ── 소이 캐릭터 ─────────────────────────────────────
+        soi_svg, soi_speech, soi_bg = get_soi_character(
+            t_ent["mood"] if t_ent else 5, cur_tags
         )
+
+        # ── 동적 배경 패널 ───────────────────────────────────
+        particle_span = "".join(f'<span style="font-size:1.4rem;opacity:.6;animation:float {1.5+i*.4:.1f}s ease-in-out infinite alternate;">{p}</span>' for i, p in enumerate(theme_particle))
+        soi_svg_safe = soi_svg.replace('"', "'")
+
         st.markdown(f"""
-        <div style="display:flex;align-items:center;gap:10px;margin:-4px 0 14px;">
-          <span style="font-size:1.5rem;">{em}</span>
-          <div>
-            <div style="font-size:.78rem;font-weight:700;color:{col};">{mood_phrasing} ({mood_val}/10)</div>
-            <div style="font-size:.7rem;color:var(--t4);">감정 온도계</div>
+        <div class="theme-panel" style="background:{theme_bg};border:1.5px solid {theme_border};">
+          <div style="display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap;">
+            <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+              {soi_svg}
+              <div class="soi-bubble" style="background:{soi_bg};">
+                {soi_speech}
+              </div>
+            </div>
+            <div style="flex:1;min-width:180px;">
+              <div style="font-size:2rem;margin-bottom:4px;">{theme_icon}</div>
+              <div style="font-size:1.15rem;font-weight:800;color:{theme_color};font-family:{theme_font};">{theme_desc}</div>
+              <div style="font-size:.8rem;color:{theme_color};opacity:.7;margin-top:4px;">{today_str} · 소이와 함께하는 감정 기록</div>
+              <div style="margin-top:8px;display:flex;gap:4px;flex-wrap:wrap;">{particle_span}</div>
+            </div>
           </div>
         </div>
         """, unsafe_allow_html=True)
 
-        # Emotion tags
-        emotion_tags = ["기쁨", "슬픔", "분노", "불안", "두려움", "수치심", "죄책감", "외로움", "설렘", "무감각", "혼란", "안도"]
-        cur_tags = t_ent.get("tags", []) if t_ent else []
-        st.markdown("<div class='label-sm' style='margin-bottom:5px;'>감정 태그 (복수 선택)</div>", unsafe_allow_html=True)
-        tag_cols = st.columns(6)
-        for col_i, tag in enumerate(emotion_tags):
-            with tag_cols[col_i % 6]:
+        jw_left, jw_right = st.columns([6, 4], gap="large")
+
+        with jw_left:
+            # ── 감정 강도 슬라이더 ───────────────────────────
+            st.markdown("<div class='sec-title' style='margin-bottom:.4rem;'>감정 강도</div>", unsafe_allow_html=True)
+            mood_val = st.slider("현재 감정 강도", 1, 10,
+                                 value=t_ent["mood"] if t_ent else 5,
+                                 key="mood_sl")
+            em_icon, em_color = MOOD_MAP[mood_val]
+            mood_phrasing = (
+                "매우 좋음" if mood_val >= 9 else "좋음" if mood_val >= 7
+                else "보통" if mood_val >= 5 else "낮음" if mood_val >= 3 else "매우 낮음"
+            )
+            st.markdown(f"""
+            <div style="display:flex;align-items:center;gap:10px;margin:-4px 0 14px;">
+              <span style="font-size:1.6rem;">{em_icon}</span>
+              <div>
+                <div style="font-size:.82rem;font-weight:700;color:{em_color};">{mood_phrasing} ({mood_val}/10)</div>
+                <div style="font-size:.68rem;color:var(--t4);">감정 온도계</div>
+              </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+            # ── 감정 태그 ────────────────────────────────────
+            st.markdown("<div class='sec-title' style='margin:.4rem 0;'>감정 태그 <span style='font-size:.7rem;font-weight:400;color:var(--t4);'>복수 선택 가능</span></div>", unsafe_allow_html=True)
+            tag_cols = st.columns(4)
+            for col_i, tag in enumerate(EMOTION_THEMES.keys()):
+                theme = EMOTION_THEMES[tag]
                 is_sel = tag in cur_tags
-                if st.button(("✓ " if is_sel else "") + tag, key=f"tag_{tag}", use_container_width=True):
-                    if tag in cur_tags:
-                        cur_tags.remove(tag)
-                    else:
-                        cur_tags.append(tag)
-                    if t_ent:
-                        t_ent["tags"] = cur_tags
-                    else:
-                        t_ent = {"date": today_str, "mood": mood_val, "text": "", "tags": cur_tags, "ai_analysis": ""}
-                        journals.append(t_ent)
-                    save_data(st.session_state.data)
-                    st.rerun()
+                with tag_cols[col_i % 4]:
+                    btn_style = f"background:{theme['bg']};color:{theme['color']};border:2px solid {theme['border']}" if is_sel else ""
+                    label = f"{theme['icon']} {'✓ ' if is_sel else ''}{tag}"
+                    if st.button(label, key=f"tag_{tag}", use_container_width=True):
+                        if tag in cur_tags:
+                            cur_tags.remove(tag)
+                        else:
+                            cur_tags.append(tag)
+                        if t_ent:
+                            t_ent["tags"] = cur_tags
+                        else:
+                            t_ent = {"date": today_str, "mood": mood_val, "text": "", "tags": cur_tags, "ai_analysis": "", "attachments": []}
+                            journals.append(t_ent)
+                        save_data(st.session_state.data)
+                        st.rerun()
 
-        # Journal text
-        j_text = st.text_area(
-            "journal", height=200,
-            value=t_ent["text"] if t_ent else "",
-            key="j_txt", label_visibility="collapsed",
-            placeholder=(
-                "오늘 어떤 일이 일어났나요?\n"
-                "어떤 생각이 머릿속을 지나갔나요?\n"
-                "몸은 어떤 느낌이었나요?\n"
-                "\n자유롭게 적어보세요."
-            ),
-        )
+            # ── 일기 작성 ────────────────────────────────────
+            st.markdown(f"""
+            <div style="margin:.8rem 0 .3rem;font-size:.82rem;font-weight:700;color:{theme_color};">
+              {theme_icon} 오늘의 이야기
+            </div>
+            """, unsafe_allow_html=True)
 
-        b1, b2 = st.columns(2)
-        with b1:
-            if st.button("💾 저장하기", use_container_width=True):
-                if not j_text.strip():
-                    st.warning("내용을 입력해 주세요.")
-                else:
-                    entry = {"date": today_str, "mood": mood_val,
-                             "text": j_text.strip(),
-                             "tags": cur_tags,
-                             "ai_analysis": t_ent["ai_analysis"] if t_ent else ""}
-                    idx = next((i for i, j in enumerate(journals) if j.get("date") == today_str), None)
-                    if idx is not None:
-                        journals[idx] = entry
-                    else:
-                        journals.append(entry)
-                    save_data(st.session_state.data)
-                    st.success("✅ 저장 완료")
-                    st.rerun()
-        with b2:
-            if st.button("◎ AI 감정 분석", use_container_width=True, type="primary"):
-                if not j_text.strip():
-                    st.warning("일기를 먼저 작성해 주세요.")
-                else:
-                    with st.spinner("소이가 분석 중..."):
-                        tags_str = ", ".join(cur_tags) if cur_tags else "없음"
-                        analysis = call_gpt(
-                            [{"role":"user","content":(
-                                f"감정 강도: {mood_val}/10\n"
-                                f"감정 태그: {tags_str}\n\n"
-                                f"일기 내용:\n{j_text.strip()}\n\n"
-                                "이 감정 일기를 인지행동치료(CBT)와 인간중심치료 관점에서 분석해 주세요. "
-                                "나타나는 인지 패턴, 감정 처리 방식, 내면의 욕구를 파악하고, "
-                                "따뜻하고 전문적인 어조로 200자 내외로 작성해 주세요. "
-                                "마지막에 자기 성찰을 돕는 질문 1개를 추가해 주세요."
-                            )}],
-                            system=build_system_prompt(), tokens=400,
+            j_text = st.text_area(
+                "journal_text", height=220,
+                value=t_ent["text"] if t_ent else "",
+                key="j_txt", label_visibility="collapsed",
+                placeholder=(
+                    "오늘 어떤 일이 있었나요?\n"
+                    "어떤 생각이 머릿속을 지나갔나요?\n"
+                    "몸은 어떤 느낌이었나요?\n\n"
+                    "자유롭게, 솔직하게 — 여기는 안전한 공간이에요."
+                ),
+            )
+
+            # ── 파일 첨부 ────────────────────────────────────
+            st.markdown("<div class='sec-title' style='margin:.6rem 0 .3rem;'>📎 사진 / 파일 첨부</div>", unsafe_allow_html=True)
+            uploaded_files = st.file_uploader(
+                "파일 첨부",
+                type=["jpg", "jpeg", "png", "gif", "webp", "pdf", "txt", "docx"],
+                accept_multiple_files=True,
+                key="j_files",
+                label_visibility="collapsed",
+            )
+
+            # 기존 첨부 미리보기
+            existing_attachments = (t_ent.get("attachments", []) if t_ent else [])
+            if existing_attachments:
+                st.markdown("<div class='label-sm' style='margin-top:.5rem;'>저장된 첨부파일</div>", unsafe_allow_html=True)
+                att_html_items = []
+                for att in existing_attachments:
+                    name = att.get("name", "파일")
+                    ftype = att.get("type", "")
+                    if ftype.startswith("image/"):
+                        b64 = att.get("data", "")
+                        att_html_items.append(
+                            f'<div class="attach-item">🖼️ <span>{name}</span></div>'
                         )
-                    entry = {"date": today_str, "mood": mood_val,
-                             "text": j_text.strip(), "tags": cur_tags, "ai_analysis": analysis}
-                    idx = next((i for i, j in enumerate(journals) if j.get("date") == today_str), None)
-                    if idx is not None:
-                        journals[idx] = entry
                     else:
-                        journals.append(entry)
-                    save_data(st.session_state.data)
-                    st.rerun()
+                        att_html_items.append(
+                            f'<div class="attach-item">📄 <span>{name}</span></div>'
+                        )
+                st.markdown(f'<div class="attach-preview">{"".join(att_html_items)}</div>', unsafe_allow_html=True)
 
-        if t_ent and t_ent.get("ai_analysis"):
-            st.markdown(f"""
-            <div style="margin-top:1rem;">
-              <div class="label-sm" style="margin-bottom:5px;">◎ 소이의 분석</div>
-              <div class="card left-bar-indigo" style="font-size:.86rem;color:var(--t2);line-height:1.8;padding:1rem 1.1rem;">
-                {t_ent["ai_analysis"]}
-              </div>
-            </div>
-            """, unsafe_allow_html=True)
+                # 이미지 실제 표시
+                for att in existing_attachments:
+                    if att.get("type", "").startswith("image/"):
+                        b64 = att.get("data", "")
+                        ftype = att.get("type", "image/jpeg")
+                        st.markdown(
+                            f'<img src="data:{ftype};base64,{b64}" style="max-width:100%;max-height:220px;border-radius:10px;margin:4px 0;" />',
+                            unsafe_allow_html=True
+                        )
 
-        if cur_tags:
-            shown_chips = "".join(f"<span class='chip chip-rose'>{t}</span>" for t in cur_tags)
-            st.markdown(f"<div style='margin-top:.5rem;'>{shown_chips}</div>", unsafe_allow_html=True)
+            # 새 파일 미리보기
+            if uploaded_files:
+                preview_cols = st.columns(min(len(uploaded_files), 3))
+                for fi, uf in enumerate(uploaded_files):
+                    with preview_cols[fi % 3]:
+                        if uf.type.startswith("image/"):
+                            st.image(uf, use_container_width=True, caption=uf.name)
+                        else:
+                            st.markdown(f'<div class="attach-item">📄 {uf.name} ({uf.size // 1024}KB)</div>', unsafe_allow_html=True)
 
-    with jr:
-        st.markdown("<div class='sec-title'>기록 히스토리</div><div class='sec-sub' style='margin-bottom:.9rem;'>최근 14일 감정 흐름</div>", unsafe_allow_html=True)
+            # ── 저장 / AI 분석 버튼 ──────────────────────────
+            sb1, sb2 = st.columns(2)
+            with sb1:
+                if st.button("💾 저장하기", use_container_width=True, key="j_save"):
+                    if not j_text.strip():
+                        st.warning("내용을 입력해 주세요.")
+                    else:
+                        # 파일 인코딩
+                        new_attachments = list(existing_attachments)
+                        for uf in (uploaded_files or []):
+                            data_b64 = base64.b64encode(uf.read()).decode("utf-8")
+                            new_attachments.append({"name": uf.name, "type": uf.type, "data": data_b64})
+                        entry = {
+                            "date": today_str, "mood": mood_val,
+                            "text": j_text.strip(), "tags": cur_tags,
+                            "ai_analysis": t_ent["ai_analysis"] if t_ent else "",
+                            "attachments": new_attachments,
+                        }
+                        idx = next((i for i, j in enumerate(journals) if j.get("date") == today_str), None)
+                        if idx is not None:
+                            journals[idx] = entry
+                        else:
+                            journals.append(entry)
+                        save_data(st.session_state.data)
+                        st.success("✅ 저장 완료!")
+                        st.rerun()
 
-        j_sorted = sorted(journals, key=lambda x: x.get("date",""), reverse=True)
+            with sb2:
+                if st.button("◎ AI 감정 분석", use_container_width=True, type="primary", key="j_ai"):
+                    if not j_text.strip():
+                        st.warning("일기를 먼저 작성해 주세요.")
+                    else:
+                        with st.spinner("소이가 분석 중..."):
+                            tags_str = ", ".join(cur_tags) if cur_tags else "없음"
+                            analysis = call_gpt(
+                                [{"role":"user","content":(
+                                    f"감정 강도: {mood_val}/10\n"
+                                    f"감정 태그: {tags_str}\n\n"
+                                    f"일기 내용:\n{j_text.strip()}\n\n"
+                                    "이 감정 일기를 인지행동치료(CBT)와 인간중심치료 관점에서 분석해 주세요. "
+                                    "나타나는 인지 패턴, 감정 처리 방식, 내면의 욕구를 파악하고, "
+                                    "따뜻하고 전문적인 어조로 200자 내외로 작성해 주세요. "
+                                    "마지막에 자기 성찰을 돕는 질문 1개를 추가해 주세요."
+                                )}],
+                                system=build_system_prompt(), tokens=400,
+                            )
+                        new_attachments = list(existing_attachments)
+                        for uf in (uploaded_files or []):
+                            data_b64 = base64.b64encode(uf.read()).decode("utf-8")
+                            new_attachments.append({"name": uf.name, "type": uf.type, "data": data_b64})
+                        entry = {
+                            "date": today_str, "mood": mood_val,
+                            "text": j_text.strip(), "tags": cur_tags,
+                            "ai_analysis": analysis,
+                            "attachments": new_attachments,
+                        }
+                        idx = next((i for i, j in enumerate(journals) if j.get("date") == today_str), None)
+                        if idx is not None:
+                            journals[idx] = entry
+                        else:
+                            journals.append(entry)
+                        save_data(st.session_state.data)
+                        st.rerun()
 
-        if len(j_sorted) >= 2:
-            chart_d = sorted(j_sorted[-14:], key=lambda x: x.get("date",""))
-            labels  = [j["date"][5:] for j in chart_d]  # MM-DD
-            vals    = [j["mood"] for j in chart_d]
+        with jw_right:
+            # ── 소이 AI 분석 결과 ────────────────────────────
+            if t_ent and t_ent.get("ai_analysis"):
+                st.markdown(f"""
+                <div style="margin-bottom:1rem;">
+                  <div class="label-sm" style="margin-bottom:6px;">◎ 소이의 분석</div>
+                  <div style="background:{theme_bg};border:1.5px solid {theme_border};
+                              border-radius:14px;padding:1rem 1.1rem;
+                              font-size:.86rem;color:{theme_color};
+                              line-height:1.9;font-family:{theme_font};">
+                    {t_ent['ai_analysis']}
+                  </div>
+                </div>
+                """, unsafe_allow_html=True)
 
-            fig_j = go.Figure()
-            fig_j.add_trace(go.Scatter(
-                x=labels, y=vals, mode="lines+markers",
-                line=dict(color="#5B4FCF", width=2.2, shape="spline"),
-                marker=dict(size=7, color="#5B4FCF",
-                            line=dict(color="white", width=1.5)),
-                fill="tozeroy", fillcolor="rgba(91,79,207,0.06)",
-                hovertemplate="%{x}<br>감정 강도: %{y}/10<extra></extra>",
-            ))
-            fig_j.update_layout(
-                plot_bgcolor="white", paper_bgcolor="white",
-                margin=dict(t=10, b=8, l=8, r=8), height=150,
-                yaxis=dict(range=[0,11], gridcolor="#F5F3EF",
-                           tickfont=dict(size=9), color="#C0BBB5", zeroline=False),
-                xaxis=dict(tickfont=dict(size=8), color="#C0BBB5", tickangle=-30),
-                showlegend=False,
-            )
-            st.markdown("<div class='card' style='padding:.9rem .8rem .4rem;'>", unsafe_allow_html=True)
-            st.plotly_chart(fig_j, use_container_width=True)
-            st.markdown("</div>", unsafe_allow_html=True)
+            # ── 감정 흐름 차트 ───────────────────────────────
+            j_sorted_all = sorted(journals, key=lambda x: x.get("date",""), reverse=True)
+            if len(j_sorted_all) >= 2:
+                chart_d = sorted(j_sorted_all[-14:], key=lambda x: x.get("date",""))
+                labels  = [j["date"][5:] for j in chart_d]
+                vals    = [j["mood"] for j in chart_d]
 
-        # ── 연속 기록 streak ──
-        if j_sorted:
-            all_dates = sorted({j.get("date","") for j in j_sorted if j.get("date")}, reverse=True)
-            streak = 0
-            check = date.today()
-            for d_str in all_dates:
-                if d_str == str(check):
-                    streak += 1
-                    check -= timedelta(days=1)
+                fig_j = go.Figure()
+                fig_j.add_trace(go.Scatter(
+                    x=labels, y=vals, mode="lines+markers",
+                    line=dict(color="#5B4FCF", width=2.2, shape="spline"),
+                    marker=dict(size=7, color="#5B4FCF", line=dict(color="white", width=1.5)),
+                    fill="tozeroy", fillcolor="rgba(91,79,207,0.06)",
+                    hovertemplate="%{x}<br>감정 강도: %{y}/10<extra></extra>",
+                ))
+                fig_j.update_layout(
+                    plot_bgcolor="white", paper_bgcolor="white",
+                    margin=dict(t=10, b=8, l=8, r=8), height=140,
+                    yaxis=dict(range=[0,11], gridcolor="#F5F3EF", tickfont=dict(size=9), color="#C0BBB5", zeroline=False),
+                    xaxis=dict(tickfont=dict(size=8), color="#C0BBB5", tickangle=-30),
+                    showlegend=False,
+                )
+                st.markdown("<div class='label-sm' style='margin-bottom:4px;'>최근 14일 감정 흐름</div>", unsafe_allow_html=True)
+                st.plotly_chart(fig_j, use_container_width=True)
+
+            # ── 스트릭 + 평균 ────────────────────────────────
+            if j_sorted_all:
+                all_dates = sorted({j.get("date","") for j in j_sorted_all if j.get("date")}, reverse=True)
+                streak = 0
+                check = date.today()
+                for d_str in all_dates:
+                    if d_str == str(check):
+                        streak += 1
+                        check -= timedelta(days=1)
+                    else:
+                        break
+                avg_mood = round(sum(j.get("mood",5) for j in j_sorted_all) / len(j_sorted_all), 1)
+                st.markdown(f"""
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:.4rem 0 .8rem;">
+                  <div style="padding:.7rem;background:linear-gradient(135deg,var(--indigo-lt),#F5F3FF);
+                              border-radius:10px;text-align:center;">
+                    <div style="font-size:1.5rem;font-weight:800;color:var(--indigo);">{streak}일</div>
+                    <div style="font-size:.68rem;color:var(--t3);font-weight:600;">🔥 연속 기록</div>
+                  </div>
+                  <div style="padding:.7rem;background:linear-gradient(135deg,#ECFDF5,#D1FAE5);
+                              border-radius:10px;text-align:center;">
+                    <div style="font-size:1.5rem;font-weight:800;color:#065F46;">{avg_mood}</div>
+                    <div style="font-size:.68rem;color:var(--t3);font-weight:600;">📊 평균 감정</div>
+                  </div>
+                </div>
+                """, unsafe_allow_html=True)
+
+            # ── 감정 태그 빈도 ───────────────────────────────
+            all_tags = [t for j in j_sorted_all for t in j.get("tags", [])]
+            if all_tags:
+                tag_count = {}
+                for t in all_tags:
+                    tag_count[t] = tag_count.get(t, 0) + 1
+                tag_sorted = sorted(tag_count.items(), key=lambda x: x[1], reverse=True)[:6]
+                chips_html = ""
+                for tag_name, cnt in tag_sorted:
+                    th = EMOTION_THEMES.get(tag_name, {})
+                    bg_c = th.get("bg", "#F5F3FF")
+                    fg_c = th.get("color", "#4F46E5")
+                    ic   = th.get("icon", "")
+                    chips_html += f'<span style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;font-size:.74rem;font-weight:600;background:{bg_c};color:{fg_c};margin:3px;">{ic} {tag_name} <span style="opacity:.7">×{cnt}</span></span>'
+                st.markdown("<div class='label-sm' style='margin-bottom:5px;'>자주 느끼는 감정</div>", unsafe_allow_html=True)
+                st.markdown(f"<div style='display:flex;flex-wrap:wrap;gap:2px;'>{chips_html}</div>", unsafe_allow_html=True)
+
+    # ══════════════════════════════════════════════════════════
+    # CALENDAR TAB
+    # ══════════════════════════════════════════════════════════
+    with J_CAL:
+        # 달력 네비게이션
+        if "cal_year" not in st.session_state:
+            st.session_state.cal_year  = date.today().year
+        if "cal_month" not in st.session_state:
+            st.session_state.cal_month = date.today().month
+        if "cal_selected" not in st.session_state:
+            st.session_state.cal_selected = None
+
+        cy = st.session_state.cal_year
+        cm = st.session_state.cal_month
+
+        nav_l, nav_mid, nav_r = st.columns([1, 3, 1])
+        with nav_l:
+            if st.button("◀", key="cal_prev"):
+                if cm == 1:
+                    st.session_state.cal_month = 12
+                    st.session_state.cal_year  -= 1
                 else:
-                    break
-            avg_mood = round(sum(j.get("mood",5) for j in j_sorted) / len(j_sorted), 1)
+                    st.session_state.cal_month -= 1
+                st.session_state.cal_selected = None
+                st.rerun()
+        with nav_mid:
+            month_names = ["1월","2월","3월","4월","5월","6월","7월","8월","9월","10월","11월","12월"]
             st.markdown(f"""
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:.8rem 0;">
-              <div style="padding:.7rem .9rem;background:linear-gradient(135deg,var(--indigo-lt),#F5F3FF);
-                          border-radius:10px;text-align:center;">
-                <div style="font-size:1.5rem;font-weight:800;color:var(--indigo);">{streak}일</div>
-                <div style="font-size:.7rem;color:var(--t3);font-weight:600;">🔥 연속 기록</div>
-              </div>
-              <div style="padding:.7rem .9rem;background:linear-gradient(135deg,var(--sage-lt),#D1FAE5);
-                          border-radius:10px;text-align:center;">
-                <div style="font-size:1.5rem;font-weight:800;color:var(--sage);">{avg_mood}</div>
-                <div style="font-size:.7rem;color:var(--t3);font-weight:600;">📊 평균 감정 강도</div>
-              </div>
-            </div>
-            """, unsafe_allow_html=True)
+            <div style="text-align:center;font-size:1.2rem;font-weight:800;color:var(--indigo);padding:.4rem 0;">
+              {cy}년 {month_names[cm-1]}
+            </div>""", unsafe_allow_html=True)
+        with nav_r:
+            if st.button("▶", key="cal_next"):
+                if cm == 12:
+                    st.session_state.cal_month = 1
+                    st.session_state.cal_year  += 1
+                else:
+                    st.session_state.cal_month += 1
+                st.session_state.cal_selected = None
+                st.rerun()
 
-        # ── 감정 태그 빈도 분석 ──
-        all_tags = [t for j in j_sorted for t in j.get("tags", [])]
-        if all_tags:
-            tag_count = {}
-            for t in all_tags:
-                tag_count[t] = tag_count.get(t, 0) + 1
-            tag_sorted = sorted(tag_count.items(), key=lambda x: x[1], reverse=True)[:8]
-            t_labels = [x[0] for x in tag_sorted]
-            t_vals   = [x[1] for x in tag_sorted]
-            tag_colors = ["#BE123C","#5B4FCF","#B45309","#3D7A5F","#0369A1","#7C3AED","#D97706","#059669"]
+        # 저널 날짜 맵 생성
+        journal_map = {j["date"]: j for j in journals if j.get("date")}
 
-            fig_t = go.Figure(go.Bar(
-                x=t_vals, y=t_labels, orientation="h",
-                marker_color=tag_colors[:len(t_labels)],
-                text=t_vals, textposition="outside",
-                textfont=dict(size=9, color="#44403C"),
-            ))
-            fig_t.update_layout(
-                plot_bgcolor="white", paper_bgcolor="white",
-                margin=dict(t=5, b=5, l=5, r=30), height=max(120, len(t_labels)*28),
-                xaxis=dict(visible=False),
-                yaxis=dict(tickfont=dict(size=10, color="#44403C"), autorange="reversed"),
-                showlegend=False,
+        # 달력 HTML 생성
+        cal = calendar.monthcalendar(cy, cm)
+        day_headers = ["월", "화", "수", "목", "금", "토", "일"]
+        headers_html = "".join(f'<div class="j-cal-head">{d}</div>' for d in day_headers)
+
+        cells_html = ""
+        for week in cal:
+            for d in week:
+                if d == 0:
+                    cells_html += '<div class="j-cal-day j-cal-empty">·</div>'
+                else:
+                    d_str = f"{cy}-{cm:02d}-{d:02d}"
+                    is_today = (d_str == today_str)
+                    has_entry = d_str in journal_map
+
+                    extra_class = "today" if is_today else ("has-entry" if has_entry else "")
+
+                    if has_entry and not is_today:
+                        j_entry = journal_map[d_str]
+                        first_tag = j_entry.get("tags", [None])[0]
+                        theme_c = EMOTION_THEMES.get(first_tag, {}).get("icon", "📝") if first_tag else "📝"
+                        dot_html = f'<span style="font-size:.65rem;">{theme_c}</span>'
+                    elif is_today:
+                        dot_html = '<span style="font-size:.6rem;">TODAY</span>'
+                    else:
+                        dot_html = ""
+
+                    cells_html += f'<div class="j-cal-day {extra_class}" title="{d_str}">{d}{dot_html}</div>'
+
+        st.markdown(f"""
+        <div style="background:white;border-radius:16px;padding:1rem;border:1.5px solid #E0E7FF;margin-bottom:1rem;">
+          <div class="j-cal-grid">{headers_html}{cells_html}</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        # 날짜 선택해서 기록 조회
+        all_entry_dates = sorted([j["date"] for j in journals if j.get("date")], reverse=True)
+        if all_entry_dates:
+            st.markdown("<div class='sec-title' style='margin-bottom:.5rem;'>📖 날짜별 기록 조회</div>", unsafe_allow_html=True)
+            sel_date = st.selectbox(
+                "날짜 선택",
+                options=all_entry_dates,
+                format_func=lambda d: d + (" 🔴 오늘" if d == today_str else ""),
+                key="cal_date_sel",
+                label_visibility="collapsed",
             )
-            st.markdown("<div class='label-sm' style='margin:1rem 0 4px;'>자주 느끼는 감정 Top 8</div>", unsafe_allow_html=True)
-            st.markdown("<div class='card' style='padding:.7rem .6rem .3rem;'>", unsafe_allow_html=True)
-            st.plotly_chart(fig_t, use_container_width=True)
-            st.markdown("</div>", unsafe_allow_html=True)
+            sel_entry = journal_map.get(sel_date)
+            if sel_entry:
+                # 선택 항목 테마
+                sel_tags    = sel_entry.get("tags", [])
+                sel_theme   = EMOTION_THEMES.get(sel_tags[0]) if sel_tags else None
+                sel_bg      = sel_theme["bg"]     if sel_theme else "linear-gradient(135deg,#F5F3FF,#EDE9FE)"
+                sel_color   = sel_theme["color"]  if sel_theme else "var(--t1)"
+                sel_border  = sel_theme["border"] if sel_theme else "#C4B5FD"
+                sel_font    = sel_theme["font"]   if sel_theme else "'Noto Sans KR',sans-serif"
+                sel_icon    = sel_theme["icon"]   if sel_theme else "📓"
+                sel_particle= sel_theme["particle"] if sel_theme else ""
 
-        if not j_sorted:
+                mood_icon_sel, mood_color_sel = MOOD_MAP.get(sel_entry.get("mood", 5), ("😐","#999"))
+                mood_ph_sel = (
+                    "매우 좋음" if sel_entry.get("mood",5)>=9 else "좋음" if sel_entry.get("mood",5)>=7
+                    else "보통" if sel_entry.get("mood",5)>=5 else "낮음" if sel_entry.get("mood",5)>=3 else "매우 낮음"
+                )
+                tags_chips_sel = "".join(
+                    f'<span style="display:inline-flex;align-items:center;gap:3px;padding:3px 10px;border-radius:20px;font-size:.74rem;font-weight:600;background:{EMOTION_THEMES.get(t,{}).get("bg","#F5F3FF")};color:{EMOTION_THEMES.get(t,{}).get("color","#4F46E5")};margin:2px;">{EMOTION_THEMES.get(t,{}).get("icon","")} {t}</span>'
+                    for t in sel_tags
+                )
+
+                soi_svg_sel, soi_speech_sel, soi_bg_sel = get_soi_character(sel_entry.get("mood",5), sel_tags)
+                particle_sel = "".join(f'<span style="font-size:1.1rem;opacity:.5;">{p}</span>' for p in sel_particle)
+
+                st.markdown(f"""
+                <div class="entry-card-themed" style="background:{sel_bg};border-color:{sel_border};">
+                  <div style="display:flex;align-items:center;gap:12px;margin-bottom:.8rem;flex-wrap:wrap;">
+                    {soi_svg_sel}
+                    <div style="flex:1;min-width:140px;">
+                      <div style="font-size:1rem;font-weight:800;color:{sel_color};font-family:{sel_font};">{sel_icon} {sel_date}</div>
+                      <div style="font-size:.78rem;color:{sel_color};opacity:.8;margin:.2rem 0;">
+                        {mood_icon_sel} {mood_ph_sel} ({sel_entry.get('mood',5)}/10) &nbsp; {particle_sel}
+                      </div>
+                      <div style="margin-top:4px;">{tags_chips_sel}</div>
+                    </div>
+                  </div>
+                  <div style="font-size:.9rem;line-height:1.9;color:{sel_color};font-family:{sel_font};
+                              background:rgba(255,255,255,.5);border-radius:10px;padding:.8rem 1rem;
+                              white-space:pre-wrap;">{sel_entry.get('text','')}</div>
+                """, unsafe_allow_html=True)
+
+                # 첨부파일 표시
+                att_list = sel_entry.get("attachments", [])
+                if att_list:
+                    st.markdown(f'<div style="margin-top:.8rem;font-size:.8rem;font-weight:700;color:{sel_color};">📎 첨부파일 ({len(att_list)}개)</div>', unsafe_allow_html=True)
+                    for att in att_list:
+                        if att.get("type","").startswith("image/"):
+                            b64_data = att.get("data","")
+                            ftype = att.get("type","image/jpeg")
+                            st.markdown(
+                                f'<img src="data:{ftype};base64,{b64_data}" style="max-width:100%;max-height:280px;border-radius:10px;margin:4px 0;display:block;" />',
+                                unsafe_allow_html=True
+                            )
+                        else:
+                            st.markdown(f'<div class="attach-item" style="margin:4px 0;">📄 {att.get("name","파일")}</div>', unsafe_allow_html=True)
+
+                # AI 분석 결과
+                if sel_entry.get("ai_analysis"):
+                    st.markdown(f"""
+                    <div style="margin-top:.8rem;background:rgba(255,255,255,.6);border-radius:10px;padding:.8rem 1rem;">
+                      <div style="font-size:.74rem;font-weight:700;color:{sel_color};margin-bottom:5px;">◎ 소이의 분석</div>
+                      <div style="font-size:.85rem;color:{sel_color};font-family:{sel_font};line-height:1.8;">{sel_entry['ai_analysis']}</div>
+                    </div>
+                    """, unsafe_allow_html=True)
+
+                st.markdown("</div>", unsafe_allow_html=True)
+
+        else:
             st.markdown("""
             <div class="empty">
               <div class="empty-icon">📓</div>
-              <div class="empty-title">기록이 없습니다</div>
-              <div class="empty-body">오늘 첫 번째 감정 일지를 작성해 보세요</div>
+              <div class="empty-title">아직 기록이 없어요</div>
+              <div class="empty-body">오늘의 감정을 첫 번째로 기록해 보세요!</div>
             </div>
             """, unsafe_allow_html=True)
-        else:
-            for j in j_sorted[:12]:
-                mood_icon, _ = MOOD_MAP.get(j.get("mood",5), ("😐","#999"))
-                tags_html = ""
-                if j.get("tags"):
-                    tags_html = "".join(f"<span class='chip chip-rose' style='font-size:.65rem;padding:1px 7px;margin:1px;'>{t}</span>" for t in j["tags"][:4])
-                ai_html = f"<div class='j-ai'>{j['ai_analysis'][:180]}{'...' if len(j.get('ai_analysis',''))>180 else ''}</div>" if j.get("ai_analysis") else ""
-                preview = j.get("text","")[:140] + ("..." if len(j.get("text","")) > 140 else "")
-                st.markdown(f"""
-                <div class="j-entry">
-                  <div style="display:flex;align-items:center;gap:5px;">
-                    <span class="j-date">{j.get("date","")}</span>
-                    <span class="j-mood">{mood_icon} {j.get("mood",5)}/10</span>
-                    <span style="flex:1;"></span>
-                    {tags_html}
-                  </div>
-                  <div class="j-text">{preview}</div>
-                  {ai_html}
-                </div>
-                """, unsafe_allow_html=True)
+
