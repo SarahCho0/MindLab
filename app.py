@@ -227,7 +227,7 @@ div[data-testid="stHorizontalBlock"] .stTabs [data-baseweb="tab-list"] {
   font-size: .75rem; font-weight: 800; color: white;
   flex-shrink: 0;
 }
-.chat-body { padding: 1.2rem 1.3rem; min-height: 340px; max-height: 460px; overflow-y: auto; }
+.chat-body { padding: .8rem 1.1rem; min-height: 200px; max-height: 320px; overflow-y: auto; }
 .chat-msgs { display: flex; flex-direction: column; gap: 16px; }
 .msg-row { display: flex; gap: 10px; max-width: 86%; }
 .msg-row.me { align-self: flex-end; flex-direction: row-reverse; }
@@ -573,30 +573,89 @@ TEMP_Q = [
      "keys": ["SJ", "SP", "NF", "NT"]},
 ]
 TEMP_TYPES = {
-    "SJ": {"name": "수호자형 (Guardian)", "icon": "🛡️", "color": "#0369A1", "population": "전체의 약 40~45%",
-           "core": "책임, 안정, 전통을 삶의 기반으로 삼습니다.",
-           "desc": "신뢰할 수 있고 조직을 안정적으로 유지하는 사람입니다. 규칙과 전통을 소중히 여기며 '지금 여기'의 책임을 다하는 것이 삶의 중심입니다.",
-           "strength": "높은 신뢰성·책임감, 체계적 실행력, 전통과 구조 유지 능력",
-           "growth": "변화와 새로운 가능성을 두려워하지 않는 유연성 기르기",
-           "similar": "ISTJ / ESTJ / ISFJ / ESFJ"},
-    "SP": {"name": "탐험가형 (Artisan)", "icon": "🧭", "color": "#D97706", "population": "전체의 약 30~35%",
-           "core": "현재 순간, 자유, 경험을 가장 중시합니다.",
-           "desc": "지금 이 순간에 온전히 집중하는 사람입니다. 자유롭고 유연하며 직접 경험과 행동을 통해 배웁니다. 즉흥성과 적응력이 뛰어납니다.",
-           "strength": "높은 적응력·유연성, 현실 문제 해결력, 행동력과 용기",
-           "growth": "장기적 목표 설정과 꾸준한 실천력 기르기",
-           "similar": "ISTP / ESTP / ISFP / ESFP"},
-    "NF": {"name": "이상주의형 (Idealist)", "icon": "🌱", "color": "#059669", "population": "전체의 약 15~20%",
-           "core": "의미, 정체성, 진정한 연결을 추구합니다.",
-           "desc": "삶의 의미와 가능성을 탐구하는 사람입니다. 깊은 공감 능력과 타인에 대한 진정한 관심이 있으며 세상이 더 나아질 수 있다는 믿음으로 움직입니다.",
-           "strength": "깊은 공감 능력, 의미 추구, 강한 직관, 촉매적 영향력",
-           "growth": "이상과 현실의 균형, 자기 돌봄의 경계 설정",
-           "similar": "INFJ / ENFJ / INFP / ENFP"},
-    "NT": {"name": "전략가형 (Rational)", "icon": "⚡", "color": "#5B4FCF", "population": "전체의 약 5~10%",
-           "core": "역량, 지식, 독립성을 핵심 가치로 삼습니다.",
-           "desc": "세상을 논리와 원리로 이해하려는 사람입니다. 복잡한 시스템을 설계하고 혁신적인 해결책을 찾는 데 강점이 있습니다.",
-           "strength": "전략적 사고, 시스템 설계 능력, 독립성, 날카로운 분석력",
-           "growth": "감정적 연결과 관계의 가치 인식, 완벽주의 완화",
-           "similar": "INTJ / ENTJ / INTP / ENTP"},
+    "SJ": {
+        "name": "수호자형 (Guardian)", "icon": "🛡️", "color": "#0369A1", "population": "전체의 약 40~45%",
+        "core": "책임, 안정, 전통을 삶의 기반으로 삼습니다.",
+        "desc": "신뢰할 수 있고 조직을 안정적으로 유지하는 사람입니다. 규칙과 전통을 소중히 여기며 '지금 여기'의 책임을 다하는 것이 삶의 중심입니다.",
+        "detail": (
+            "수호자형은 사회의 든든한 토대입니다. 약속을 지키는 것을 최고의 미덕으로 여기며, "
+            "맡은 역할을 끝까지 완수하는 데서 깊은 보람을 느낍니다. 과거의 검증된 방식을 신뢰하고 "
+            "절차와 규범을 존중하기 때문에 조직과 공동체를 안정적으로 이끄는 데 탁월합니다.\n\n"
+            "감정보다는 행동으로 돌봄을 표현하는 편이며, 가족·직장·공동체에 대한 헌신이 강합니다. "
+            "변화보다는 점진적 개선을 선호하고, 실용적이고 현실적인 관점에서 문제를 접근합니다. "
+            "스트레스 상황에서는 더 열심히 일하거나 기존 루틴에 집중하는 경향이 있습니다."
+        ),
+        "strength": "높은 신뢰성·책임감, 체계적 실행력, 전통과 구조 유지 능력",
+        "growth": "변화와 새로운 가능성을 두려워하지 않는 유연성 기르기",
+        "similar": "ISTJ / ESTJ / ISFJ / ESFJ",
+        "compatible": {"best": ["SP", "NF"], "challenging": ["NT"]},
+        "compatible_desc": {
+            "best": "탐험가형(SP)의 현실 감각과 이상주의형(NF)의 온기는 수호자형의 구조와 잘 어우러집니다.",
+            "challenging": "전략가형(NT)의 끊임없는 시스템 개혁 욕구는 수호자형의 안정 추구와 충돌하기 쉽습니다.",
+        },
+    },
+    "SP": {
+        "name": "탐험가형 (Artisan)", "icon": "🧭", "color": "#D97706", "population": "전체의 약 30~35%",
+        "core": "현재 순간, 자유, 경험을 가장 중시합니다.",
+        "desc": "지금 이 순간에 온전히 집중하는 사람입니다. 자유롭고 유연하며 직접 경험과 행동을 통해 배웁니다. 즉흥성과 적응력이 뛰어납니다.",
+        "detail": (
+            "탐험가형은 삶 자체가 모험입니다. 규칙이나 계획보다는 '지금 이 순간'의 흐름에 맞게 움직이는 것을 "
+            "편안하게 느끼며, 손재주·예술·스포츠·위기 대응 등 즉각적인 결과가 보이는 분야에서 빛을 발합니다.\n\n"
+            "이론보다 실전, 설명보다 시연을 선호합니다. 고정된 루틴이나 긴 회의는 에너지를 빠르게 소진시키며, "
+            "자유가 제약될 때 답답함을 강하게 느낍니다. 즉흥적인 결정이 때로는 장기 계획과 충돌할 수 있어 "
+            "자신만의 루틴을 조금씩 만들어 가는 연습이 성장의 핵심입니다."
+        ),
+        "strength": "높은 적응력·유연성, 현실 문제 해결력, 행동력과 용기",
+        "growth": "장기적 목표 설정과 꾸준한 실천력 기르기",
+        "similar": "ISTP / ESTP / ISFP / ESFP",
+        "compatible": {"best": ["SJ", "NT"], "challenging": ["NF"]},
+        "compatible_desc": {
+            "best": "수호자형(SJ)의 안정적인 구조와 전략가형(NT)의 날카로운 통찰은 탐험가형의 행동력을 더욱 빛나게 합니다.",
+            "challenging": "이상주의형(NF)의 깊은 의미 탐구는 현재 지향적인 탐험가형과 방향이 어긋날 수 있습니다.",
+        },
+    },
+    "NF": {
+        "name": "이상주의형 (Idealist)", "icon": "🌱", "color": "#059669", "population": "전체의 약 15~20%",
+        "core": "의미, 정체성, 진정한 연결을 추구합니다.",
+        "desc": "삶의 의미와 가능성을 탐구하는 사람입니다. 깊은 공감 능력과 타인에 대한 진정한 관심이 있으며 세상이 더 나아질 수 있다는 믿음으로 움직입니다.",
+        "detail": (
+            "이상주의형은 잠재력을 보는 눈이 탁월합니다. 사람들이 스스로 성장하도록 돕고, "
+            "진정한 관계와 깊은 대화에서 가장 큰 에너지를 얻습니다. 언어·예술·교육·상담·사회 변화 등 "
+            "'사람과 의미'가 중심인 분야에서 강점을 발휘합니다.\n\n"
+            "겉과 속이 일치하는 진정성을 매우 중요하게 여기며, 위선이나 형식적인 관계에 쉽게 지칩니다. "
+            "이상이 높은 만큼 현실과의 간극에서 소진되기 쉬우므로, 자기 돌봄(self-care)과 경계 설정이 "
+            "특히 중요합니다. 타인의 감정을 너무 깊이 흡수하는 경향을 인식하는 것도 성장의 출발점입니다."
+        ),
+        "strength": "깊은 공감 능력, 의미 추구, 강한 직관, 촉매적 영향력",
+        "growth": "이상과 현실의 균형, 자기 돌봄의 경계 설정",
+        "similar": "INFJ / ENFJ / INFP / ENFP",
+        "compatible": {"best": ["NT", "SJ"], "challenging": ["SP"]},
+        "compatible_desc": {
+            "best": "전략가형(NT)의 지적 깊이와 수호자형(SJ)의 믿음직한 안정감은 이상주의형이 꿈을 현실로 만드는 데 큰 힘이 됩니다.",
+            "challenging": "탐험가형(SP)의 즉흥적·현실 중심적 태도는 의미를 중시하는 이상주의형과 가치관이 충돌하기 쉽습니다.",
+        },
+    },
+    "NT": {
+        "name": "전략가형 (Rational)", "icon": "⚡", "color": "#5B4FCF", "population": "전체의 약 5~10%",
+        "core": "역량, 지식, 독립성을 핵심 가치로 삼습니다.",
+        "desc": "세상을 논리와 원리로 이해하려는 사람입니다. 복잡한 시스템을 설계하고 혁신적인 해결책을 찾는 데 강점이 있습니다.",
+        "detail": (
+            "전략가형은 끊임없이 '왜?'를 묻습니다. 기존의 것을 당연하게 받아들이지 않고 "
+            "더 나은 방법을 탐구하며, 지식과 역량을 축적하는 과정 자체에서 큰 만족을 느낍니다. "
+            "과학·공학·철학·법·전략 등 복잡한 시스템을 다루는 분야에서 특히 두각을 나타냅니다.\n\n"
+            "감정보다 논리를 우선시하는 경향이 있어 타인에게 차갑거나 오만하게 보일 수 있습니다. "
+            "완벽주의가 강해 자신과 타인에게 높은 기준을 적용하며, 이것이 스트레스의 주요 원인이 되기도 합니다. "
+            "감정적 연결과 취약성을 허용하는 연습이 관계의 깊이를 더해 줍니다."
+        ),
+        "strength": "전략적 사고, 시스템 설계 능력, 독립성, 날카로운 분석력",
+        "growth": "감정적 연결과 관계의 가치 인식, 완벽주의 완화",
+        "similar": "INTJ / ENTJ / INTP / ENTP",
+        "compatible": {"best": ["NF", "SP"], "challenging": ["SJ"]},
+        "compatible_desc": {
+            "best": "이상주의형(NF)의 공감과 가치 지향은 전략가형이 놓치기 쉬운 인간적 측면을 채워 주고, 탐험가형(SP)의 실행력은 전략의 현실화를 돕습니다.",
+            "challenging": "수호자형(SJ)의 '해왔던 방식' 고수는 변화와 혁신을 추구하는 전략가형과 자주 마찰을 빚습니다.",
+        },
+    },
 }
 
 # 2) 에니어그램 핵심 유형 (9Q)
@@ -604,39 +663,66 @@ ENNEA_ITEMS = [
     {"type": "1", "name": "개혁가형", "icon": "⚖️", "color": "#6B7280",
      "text": "올바름과 원칙을 중시하며, 잘못된 것을 보면 고치고 싶다. 스스로와 타인 모두에게 높은 기준을 적용한다.",
      "core_fear": "불완전하고 결함 있는 존재가 되는 것", "core_desire": "착하고 올바른 사람이 되는 것",
-     "desc": "세상을 개선하고자 하는 강한 내적 동기. 이상적 기준에 도달하려 끊임없이 노력합니다."},
+     "desc": "세상을 개선하고자 하는 강한 내적 동기. 이상적 기준에 도달하려 끊임없이 노력합니다.",
+     "detail": "1번 개혁가형은 내면에 '비판하는 목소리'를 지닙니다. 이 목소리는 더 나은 세상을 만들려는 원동력이 되기도 하지만, 자기 자신과 타인에 대한 끊임없는 판단으로 이어지기도 합니다. 높은 기준과 철저함이 강점이지만, 자신의 분노를 인식하고 불완전함을 허용하는 연습이 성장의 열쇠입니다.",
+     "compatible": {"best": ["7", "9"], "challenging": ["4"]},
+     "compatible_desc": {"best": "7번의 자유로운 에너지는 1번의 긴장을 풀어 주고, 9번의 수용적 태도는 1번에게 쉼을 줍니다.", "challenging": "4번과는 '완벽 대 독특함'이라는 기준 충돌이 생기기 쉽습니다."}},
     {"type": "2", "name": "조력가형", "icon": "🤲", "color": "#EC4899",
      "text": "다른 사람을 돕는 것에서 만족을 느끼며, 사랑받고 필요한 존재가 되고 싶다. 타인의 감정에 매우 민감하다.",
      "core_fear": "사랑받지 못하고 필요하지 않은 존재가 되는 것", "core_desire": "진심으로 사랑받는 것",
-     "desc": "따뜻한 마음으로 타인의 필요에 응답합니다. 관계 속에서 자신의 가치를 발견합니다."},
+     "desc": "따뜻한 마음으로 타인의 필요에 응답합니다. 관계 속에서 자신의 가치를 발견합니다.",
+     "detail": "2번 조력가형은 사랑의 언어가 '봉사'입니다. 진심으로 타인을 돕지만, 그 이면에는 인정받고 싶은 욕구가 숨어 있을 수 있습니다. 자신의 필요를 억누르고 타인 중심으로 살다 보면 내면에 원망이 쌓이기 쉽습니다. 자기 자신에게도 같은 친절을 베푸는 것이 성장 방향입니다.",
+     "compatible": {"best": ["4", "8"], "challenging": ["5"]},
+     "compatible_desc": {"best": "4번의 깊은 감정 세계는 2번의 공감 능력과 잘 맞고, 8번의 직접성은 2번이 솔직해지도록 돕습니다.", "challenging": "5번의 독립·거리 선호는 연결을 원하는 2번에게 거절처럼 느껴질 수 있습니다."}},
     {"type": "3", "name": "성취자형", "icon": "🏆", "color": "#F59E0B",
      "text": "성공하고 인정받고 싶은 욕구가 강하며, 목표를 향해 효율적으로 움직인다. 이미지와 성과를 매우 중시한다.",
      "core_fear": "실패하고 가치 없는 존재가 되는 것", "core_desire": "가치 있고 성공한 사람이 되는 것",
-     "desc": "목표 지향적이며 적응력이 뛰어납니다. 성과로 자신의 가치를 증명하려 합니다."},
+     "desc": "목표 지향적이며 적응력이 뛰어납니다. 성과로 자신의 가치를 증명하려 합니다.",
+     "detail": "3번 성취자형은 어떤 환경에서도 빠르게 성과를 내는 능력이 있습니다. 하지만 '하는 것(doing)'에 집중하다 보면 '있는 것(being)'을 잊기 쉽습니다. 이미지와 역할 뒤에 숨지 않고 진짜 자신과 만나는 것, 성과 없이도 사랑받을 수 있다는 것을 내면화하는 것이 핵심 성장 과제입니다.",
+     "compatible": {"best": ["6", "9"], "challenging": ["8"]},
+     "compatible_desc": {"best": "6번의 충성심은 3번에게 안전한 관계 기반을 제공하고, 9번은 3번이 쉬어갈 수 있는 공간을 만들어 줍니다.", "challenging": "8번과는 주도권 경쟁이 생기기 쉬워 갈등이 잦을 수 있습니다."}},
     {"type": "4", "name": "개인주의형", "icon": "🎭", "color": "#8B5CF6",
      "text": "자신만의 독특한 정체성과 감정 세계를 중시하며, 평범함을 거부한다. 깊은 감정과 창의적 표현에 이끌린다.",
      "core_fear": "정체성 없이 평범한 존재가 되는 것", "core_desire": "자신만의 정체성과 의미를 발견하는 것",
-     "desc": "깊은 감정과 독창성을 추구합니다. 아름다움과 진정성에 민감하며 예술적 감수성이 풍부합니다."},
+     "desc": "깊은 감정과 독창성을 추구합니다. 아름다움과 진정성에 민감하며 예술적 감수성이 풍부합니다.",
+     "detail": "4번 개인주의형은 감정의 깊이와 아름다움을 탐구하는 예술가적 영혼을 지닙니다. '나는 남들과 다르다'는 정체성이 독창적 창조의 원천이 되지만, 동시에 소외감과 결핍감으로 이어지기도 합니다. 현재의 나 자신을 있는 그대로 받아들이는 연습, 그리고 깊은 감정을 행동으로 전환하는 능력이 성장의 핵심입니다.",
+     "compatible": {"best": ["1", "5"], "challenging": ["2"]},
+     "compatible_desc": {"best": "1번의 원칙은 4번에게 방향성을 주고, 5번의 지적 탐구는 4번의 내면 세계를 더욱 풍요롭게 합니다.", "challenging": "2번의 적극적 도움은 사생활을 중시하는 4번에게 부담으로 느껴질 수 있습니다."}},
     {"type": "5", "name": "탐구자형", "icon": "🔭", "color": "#06B6D4",
      "text": "지식과 정보를 축적하며 세상을 이해하고 싶다. 혼자만의 공간이 필요하며, 에너지를 아끼는 경향이 있다.",
      "core_fear": "무능하고 쓸모없는 존재가 되는 것", "core_desire": "유능하고 통찰 있는 존재가 되는 것",
-     "desc": "깊이 있는 탐구를 통해 세상을 이해합니다. 독립성과 내적 자원을 중시합니다."},
+     "desc": "깊이 있는 탐구를 통해 세상을 이해합니다. 독립성과 내적 자원을 중시합니다.",
+     "detail": "5번 탐구자형은 관찰하고 분석하는 것으로 세상을 이해합니다. 에너지를 매우 소중하게 여기며 혼자만의 시간과 공간 없이는 고갈을 느낍니다. 지식을 축적하는 것이 강점이지만, 삶에 참여하는 것을 미루거나 감정 표현을 회피하는 경향이 있습니다. 관계 속으로 실제로 나오는 연습이 중요합니다.",
+     "compatible": {"best": ["4", "8"], "challenging": ["2"]},
+     "compatible_desc": {"best": "4번의 감성적 깊이는 5번의 지적 탐구를 보완하고, 8번의 직접성은 5번이 현실 세계에 더 적극적으로 참여하도록 돕습니다.", "challenging": "2번의 감정적 요구와 가까움 추구는 혼자만의 공간을 필요로 하는 5번에게 부담이 됩니다."}},
     {"type": "6", "name": "충성파형", "icon": "🔐", "color": "#10B981",
      "text": "안전을 추구하고 믿을 수 있는 시스템과 사람을 찾는다. 걱정이 많고 최악의 상황을 미리 생각하는 편이다.",
      "core_fear": "보호 없이 홀로 남겨지는 것", "core_desire": "안전과 지지를 얻는 것",
-     "desc": "안전과 신뢰를 삶의 토대로 삼습니다. 위험에 민감하고 책임감이 강합니다."},
+     "desc": "안전과 신뢰를 삶의 토대로 삼습니다. 위험에 민감하고 책임감이 강합니다.",
+     "detail": "6번 충성파형은 위험과 문제를 미리 감지하는 탁월한 능력을 가지고 있습니다. 신뢰하는 사람에게는 한없이 헌신적이며 공동체에 대한 책임감이 강합니다. 하지만 불안과 의심이 과도해지면 의사결정이 어려워지거나 타인의 의도를 부정적으로 해석하기 쉽습니다. 자신의 내면에 충분한 자원이 있음을 신뢰하는 연습이 핵심입니다.",
+     "compatible": {"best": ["3", "9"], "challenging": ["7"]},
+     "compatible_desc": {"best": "3번의 자신감과 행동력은 6번이 주저하는 순간에 힘이 되고, 9번의 평화로운 에너지는 6번의 불안을 진정시킵니다.", "challenging": "7번의 즉흥성과 위험 감수 성향은 안전을 중시하는 6번에게 불안감을 줄 수 있습니다."}},
     {"type": "7", "name": "열정파형", "icon": "✨", "color": "#FF6B35",
      "text": "새로운 경험과 즐거움을 추구하며, 부정적인 것을 피하려 한다. 에너지가 넘치고 낙관적이며 늘 새로운 계획이 있다.",
      "core_fear": "고통과 결핍 속에 갇히는 것", "core_desire": "행복하고 충족된 상태를 유지하는 것",
-     "desc": "삶의 즐거움과 가능성을 열정적으로 추구합니다. 다재다능하고 창의적입니다."},
+     "desc": "삶의 즐거움과 가능성을 열정적으로 추구합니다. 다재다능하고 창의적입니다.",
+     "detail": "7번 열정파형은 삶에 대한 열정이 넘쳐 주변 사람들에게 활력을 줍니다. 끊임없이 새로운 아이디어와 경험을 찾으며 낙관적인 시각으로 가능성을 봅니다. 하지만 고통·지루함·결핍을 피하려는 욕구가 강해 한 가지에 오래 머무르지 못하거나 어려운 감정을 회피하는 경향이 있습니다. 깊이 있게 머무르는 연습이 삶의 충족감을 높여 줍니다.",
+     "compatible": {"best": ["1", "5"], "challenging": ["6"]},
+     "compatible_desc": {"best": "1번의 집중력은 7번의 분산된 에너지에 방향을 주고, 5번의 깊이 있는 탐구는 7번이 한 곳에 머물도록 도움을 줍니다.", "challenging": "6번의 조심스럽고 불안한 에너지는 자유롭게 움직이고 싶은 7번에게 제약처럼 느껴질 수 있습니다."}},
     {"type": "8", "name": "도전자형", "icon": "🦁", "color": "#DC2626",
      "text": "강하고 독립적이며 타인에게 통제받기 싫어한다. 직접적이고 단호하며 불의에 강하게 반응한다.",
      "core_fear": "타인에게 통제되거나 상처받는 것", "core_desire": "스스로를 지키고 삶을 통제하는 것",
-     "desc": "강인함과 결단력으로 세상을 직면합니다. 부당함에 맞서 싸우는 용기가 있습니다."},
+     "desc": "강인함과 결단력으로 세상을 직면합니다. 부당함에 맞서 싸우는 용기가 있습니다.",
+     "detail": "8번 도전자형은 강렬한 존재감과 에너지로 주변에 강한 인상을 남깁니다. 약자를 보호하고 불의에 맞서는 것을 사명으로 여기며, 직접적이고 솔직한 소통을 선호합니다. 하지만 자신의 취약함을 드러내는 것을 극도로 불편해하며, 강함을 유지하려는 방어가 친밀한 관계 형성을 어렵게 할 수 있습니다. 연약함도 힘의 일부임을 받아들이는 것이 핵심 성장 과제입니다.",
+     "compatible": {"best": ["2", "5"], "challenging": ["3"]},
+     "compatible_desc": {"best": "2번의 따뜻함은 8번의 딱딱한 외면을 녹여 주고, 5번은 8번의 강한 에너지를 지적으로 수용할 수 있습니다.", "challenging": "3번과는 주도권 경쟁이 생기기 쉬우며 서로의 강한 자아가 충돌할 수 있습니다."}},
     {"type": "9", "name": "화해자형", "icon": "☮️", "color": "#84CC16",
      "text": "평화와 조화를 사랑하며 갈등을 피하려 한다. 타인의 입장을 잘 이해하지만 자신의 의견을 드러내길 어려워한다.",
      "core_fear": "단절과 갈등으로 평화를 잃는 것", "core_desire": "내면의 평온과 외부의 화합",
-     "desc": "내면의 평화와 외부의 조화를 추구합니다. 포용력이 넓고 중재 능력이 탁월합니다."},
+     "desc": "내면의 평화와 외부의 조화를 추구합니다. 포용력이 넓고 중재 능력이 탁월합니다.",
+     "detail": "9번 화해자형은 모든 관점을 자연스럽게 수용하는 넓은 포용력을 지닙니다. 갈등을 중재하고 다양한 사람들을 연결하는 데 탁월하지만, 평화를 유지하려다 보면 자신의 욕구와 의견을 무시하게 되는 '자기 망각'이 일어납니다. '나는 무엇을 원하는가?'라는 질문을 스스로에게 자주 던지는 것, 그리고 갈등을 피하지 않고 적절히 표현하는 연습이 성장의 핵심입니다.",
+     "compatible": {"best": ["3", "6"], "challenging": ["1"]},
+     "compatible_desc": {"best": "3번의 추진력은 9번이 움직이도록 동기를 주고, 6번은 신뢰를 바탕으로 9번이 편안함을 느끼게 합니다.", "challenging": "1번의 높은 기준과 비판적 목소리는 평화를 원하는 9번을 위축시킬 수 있습니다."}},
 ]
 ENNEA_OPTS = ["💯  꼭 나 같다", "🙂  어느 정도 나", "😶  별로 아니다"]
 ENNEA_SCORES = [3, 2, 1]
@@ -687,20 +773,32 @@ STRESS_Q = [
 STRESS_TYPES = {
     "PS": {"name": "문제 해결형", "icon": "🔧", "color": "#0369A1",
            "desc": "스트레스를 받을 때 즉각적으로 문제를 분석하고 해결하려 합니다. 통제감 회복이 핵심 동기이며 능동적 대처가 강점입니다.",
+           "detail": "문제 해결형은 스트레스 상황을 '극복해야 할 과제'로 인식합니다. 할 일 목록 작성, 전략 수립, 정보 수집 등의 방식으로 상황을 통제하려 합니다. 이 능동적 태도는 실제로 많은 문제를 효과적으로 해결하지만, 통제할 수 없는 상황(관계 갈등, 감정의 영역)에서는 오히려 소진될 수 있습니다. 때로는 '문제를 해결하지 않아도 괜찮다'는 허용이 필요합니다.",
            "tip": "때로는 문제를 해결하지 않고 그냥 '느끼는' 연습이 필요합니다. 불확실성을 감내하는 능력을 함께 길러 가세요.",
-           "therapy": "CBT의 행동 활성화 + 자기 효능감 강화 훈련"},
+           "therapy": "CBT의 행동 활성화 + 자기 효능감 강화 훈련",
+           "compatible": {"best": ["RC"], "challenging": ["AV"]},
+           "compatible_desc": {"best": "전환 회복형(RC)과는 문제에 접근하는 방식이 달라 서로 보완적입니다. RC의 유연한 회복이 PS의 긴장을 풀어 줍니다.", "challenging": "회피 마비형(AV)과는 문제를 마주하는 방식이 너무 달라 서로 답답함을 느끼기 쉽습니다."}},
     "RC": {"name": "전환 회복형", "icon": "🌊", "color": "#059669",
            "desc": "기분을 전환하고 재충전을 통해 자연스럽게 회복합니다. 정서적 유연성이 높고 회복탄력성이 뛰어납니다.",
+           "detail": "전환 회복형은 스트레스를 '회복이 필요한 신호'로 읽습니다. 취미, 운동, 사교, 여행 등 자신에게 즐거움을 주는 활동으로 에너지를 재충전하며, 상황이 지나가면 자연스럽게 회복됩니다. 이 유연함은 큰 강점이지만, 회피가 패턴이 되어 중요한 문제를 계속 뒤로 미루게 될 위험이 있습니다. 때로는 불편한 감정에 머무르는 연습도 필요합니다.",
            "tip": "전환이 회피로 변하지 않도록 주의하세요. 중요한 문제는 외면하지 않고 적절히 직면하는 균형이 필요합니다.",
-           "therapy": "마음챙김 기반 스트레스 감소(MBSR)"},
+           "therapy": "마음챙김 기반 스트레스 감소(MBSR)",
+           "compatible": {"best": ["PS"], "challenging": ["ER"]},
+           "compatible_desc": {"best": "문제 해결형(PS)의 체계적 접근은 RC에게 방향을 제시하고, RC의 회복력은 PS의 긴장을 완화합니다.", "challenging": "감정 반응형(ER)의 강한 정서 표현은 평온을 추구하는 RC에게 버거울 수 있습니다."}},
     "AV": {"name": "회피 마비형", "icon": "🌫️", "color": "#6B7280",
            "desc": "스트레스 상황에서 무감각해지거나 회피하는 경향이 있습니다. 장기적으로 문제가 쌓이고 내면 소진으로 이어질 수 있습니다.",
+           "detail": "회피 마비형은 스트레스 자극이 너무 클 때 차단(shutdown) 모드로 전환됩니다. 과부하를 막기 위한 자기 보호 반응이지만, 만성적으로 지속되면 미뤄진 문제들이 쌓여 더 큰 스트레스를 만들어 냅니다. 작은 일부터 시작하는 점진적 노출, 신뢰할 수 있는 사람에게 털어놓기, 몸을 움직이는 활동이 패턴을 변화시키는 좋은 출발점입니다.",
            "tip": "회피 패턴을 인식하는 것이 첫 번째 단계입니다. 작은 불편감을 점진적으로 직면하는 노출 훈련이 중요합니다.",
-           "therapy": "수용전념치료(ACT)와 점진적 노출요법"},
+           "therapy": "수용전념치료(ACT)와 점진적 노출요법",
+           "compatible": {"best": ["ER"], "challenging": ["PS"]},
+           "compatible_desc": {"best": "감정 반응형(ER)의 직접적인 감정 표현은 AV가 억압한 감정을 안전하게 대리 경험하게 해 줄 수 있습니다.", "challenging": "문제 해결형(PS)의 즉각적 행동 요구는 마비 상태의 AV에게 더 큰 압박이 될 수 있습니다."}},
     "ER": {"name": "감정 반응형", "icon": "🌋", "color": "#DC2626",
            "desc": "스트레스가 감정 반응으로 즉각 표출되는 경향이 있습니다. 감정 민감도가 높고 자책이나 분노로 나타날 수 있습니다.",
+           "detail": "감정 반응형은 감정의 안테나가 매우 예민합니다. 작은 자극에도 강하게 반응하며, 이 감수성은 공감 능력과 창의성의 원천이 되기도 합니다. 하지만 충동적 표현이 관계를 손상시키거나, 강렬한 자책 감정이 장기간 지속될 수 있습니다. 감정과 행동 사이에 '숨 고르기' 공간을 만드는 연습, 즉 자극-반응 사이의 간격을 넓히는 것이 핵심 과제입니다.",
            "tip": "감정 일기, 마음챙김 명상, 호흡법 등으로 감정과 행동 사이에 '공간'을 만드는 연습이 효과적입니다.",
-           "therapy": "변증법적 행동치료(DBT) + 정서중심치료(EFT)"},
+           "therapy": "변증법적 행동치료(DBT) + 정서중심치료(EFT)",
+           "compatible": {"best": ["AV"], "challenging": ["RC"]},
+           "compatible_desc": {"best": "회피 마비형(AV)의 차분함은 ER의 강렬한 감정을 안정시켜 주는 역할을 합니다.", "challenging": "전환 회복형(RC)의 가벼운 태도는 ER에게 진지하게 받아들여지지 않는 느낌을 줄 수 있습니다."}},
 }
 
 # ══════════════════════════════════════════════════════════════
@@ -720,6 +818,7 @@ def load_data() -> dict:
         },
         "messages": [],
         "journals": [],
+        "quiz_results": {},
     }
 
 def save_data(d: dict):
@@ -734,13 +833,15 @@ if "msgs" not in st.session_state:
 if "chat_k" not in st.session_state:
     st.session_state.chat_k = 0
 if "bfi_submitted" not in st.session_state:
-    st.session_state.bfi_submitted = False
+    st.session_state.bfi_submitted = bool(st.session_state.data["profile"].get("bfi"))
 if "ecr_submitted" not in st.session_state:
-    st.session_state.ecr_submitted = False
+    st.session_state.ecr_submitted = bool(st.session_state.data["profile"].get("attachment"))
 if "quiz_answers" not in st.session_state:
     st.session_state.quiz_answers = {}
 if "quiz_results" not in st.session_state:
-    st.session_state.quiz_results = {}
+    st.session_state.quiz_results = dict(st.session_state.data.get("quiz_results", {}))
+if "returning_user_choice" not in st.session_state:
+    st.session_state.returning_user_choice = None
 
 # ── Helpers ──────────────────────────────────────────────────
 def get_client():
@@ -900,6 +1001,88 @@ with st.sidebar:
         st.session_state.data["messages"] = []
         save_data(st.session_state.data)
         st.rerun()
+
+# ═══════════════════════════════════════════════════════════════
+# ─── RETURNING USER CHECK ──────────────────────────────────────
+# ═══════════════════════════════════════════════════════════════
+def _has_saved_data() -> bool:
+    d = st.session_state.data
+    return (
+        bool(d["profile"].get("bfi")) or
+        bool(d["profile"].get("attachment")) or
+        bool(d["profile"].get("name")) or
+        bool(d.get("quiz_results")) or
+        bool(d.get("journals")) or
+        bool(d.get("messages"))
+    )
+
+if st.session_state.returning_user_choice is None and _has_saved_data():
+    pr_name = st.session_state.data["profile"].get("name", "")
+    greeting = f"{pr_name} 님, 다시 오셨군요!" if pr_name else "다시 오셨군요!"
+
+    qr = st.session_state.data.get("quiz_results", {})
+    bfi_done  = bool(st.session_state.data["profile"].get("bfi"))
+    ecr_done  = bool(st.session_state.data["profile"].get("attachment"))
+    temp_done = bool(qr.get("temperament"))
+    ennn_done = bool(qr.get("enneagram"))
+    strss_done = bool(qr.get("stress"))
+    done_count = sum([bfi_done, ecr_done, temp_done, ennn_done, strss_done])
+
+    st.markdown(f"""
+    <div style="max-width:580px;margin:3rem auto 0;text-align:center;">
+      <div style="font-size:2.8rem;margin-bottom:.8rem;">◎</div>
+      <div style="font-size:1.55rem;font-weight:800;color:var(--t1);margin-bottom:.4rem;">{greeting}</div>
+      <div style="font-size:.92rem;color:var(--t3);margin-bottom:1.8rem;line-height:1.7;">
+        마음 연구소에 이전 기록이 남아 있어요.<br>
+        이어서 탐구하거나, 처음부터 새로 시작할 수 있어요.
+      </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # progress summary
+    badges = []
+    if bfi_done:   badges.append("🧠 Big Five")
+    if ecr_done:   badges.append("💞 애착 유형")
+    if temp_done:
+        tt = TEMP_TYPES.get(qr["temperament"], {})
+        badges.append(f"{tt.get('icon','🧭')} {tt.get('name','기질')}")
+    if ennn_done:
+        ei = next((e for e in ENNEA_ITEMS if e["type"] == qr["enneagram"]), None)
+        badges.append(f"{ei['icon'] if ei else '🔢'} {qr['enneagram']}번 에니어그램" if ei else "🔢 에니어그램")
+    if strss_done:
+        st_ = STRESS_TYPES.get(qr["stress"], {})
+        badges.append(f"{st_.get('icon','⚡')} {st_.get('name','스트레스')}")
+
+    if badges:
+        badge_html = "".join(
+            f'<span style="display:inline-block;background:var(--indigo-lt);color:var(--indigo);'
+            f'border-radius:20px;padding:4px 12px;font-size:.76rem;font-weight:700;margin:3px 4px;">'
+            f'{b}</span>'
+            for b in badges
+        )
+        st.markdown(f"""
+        <div style="max-width:580px;margin:0 auto 1.6rem;text-align:center;">
+          <div style="font-size:.72rem;color:var(--t4);font-weight:700;letter-spacing:.06em;
+                      text-transform:uppercase;margin-bottom:.6rem;">완료한 검사 · {done_count}/5</div>
+          <div>{badge_html}</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    st.markdown("<div style='max-width:480px;margin:0 auto;'>", unsafe_allow_html=True)
+    btn_col1, btn_col2 = st.columns(2, gap="medium")
+    with btn_col1:
+        if st.button("📂  이전 기록 이어서 하기", use_container_width=True, type="primary"):
+            st.session_state.returning_user_choice = "continue"
+            st.rerun()
+    with btn_col2:
+        if st.button("🔄  처음부터 다시하기", use_container_width=True):
+            if os.path.exists(DATA_FILE):
+                os.remove(DATA_FILE)
+            for key in list(st.session_state.keys()):
+                del st.session_state[key]
+            st.rerun()
+    st.markdown("</div>", unsafe_allow_html=True)
+    st.stop()
 
 # ═══════════════════════════════════════════════════════════════
 # ─── MAIN TABS ─────────────────────────────────────────────────
@@ -1153,13 +1336,10 @@ with T1:
 # ═══════════════════════════════════════════════════════════════
 with T2:
     st.markdown("""
-    <div style="margin-bottom:1.4rem;">
+    <div style="margin-bottom:.6rem;">
       <div class="page-eyebrow">AI 심리 상담</div>
-      <div class="page-title">소이와 대화하기</div>
-      <div class="page-desc">
-        인지행동치료(CBT)·인간중심치료·애착 이론 기반의 AI 상담사입니다.<br>
-        진단을 제공하지 않으며, 자기 이해와 성장을 함께 탐구합니다.
-      </div>
+      <div style="font-family:'Lora',serif;font-size:1.3rem;font-weight:600;color:var(--t1);letter-spacing:-.02em;margin-bottom:2px;">소이와 대화하기</div>
+      <div style="font-size:.78rem;color:var(--t3);">CBT·인간중심치료·애착 이론 기반 AI 상담사 &nbsp;·&nbsp; 진단을 제공하지 않습니다</div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -1667,6 +1847,8 @@ with T4:
                     if ans is not None:
                         counts[q["keys"][ans]] += 1
                 st.session_state.quiz_results["temperament"] = max(counts, key=counts.get)
+                st.session_state.data.setdefault("quiz_results", {})["temperament"] = st.session_state.quiz_results["temperament"]
+                save_data(st.session_state.data)
                 st.rerun()
         elif not all_done:
             remaining = len(TEMP_Q) - sum(1 for i in range(len(TEMP_Q)) if f"temp_q{i}" in st.session_state.quiz_answers)
@@ -1683,7 +1865,7 @@ with T4:
                   <div class="label-sm" style="color:{tt['color']};margin-bottom:4px;">나의 기질 유형 · Keirsey</div>
                   <div style="font-size:1.05rem;font-weight:800;color:var(--t1);margin-bottom:4px;">{tt['name']}</div>
                   <div style="font-size:.73rem;color:var(--t4);margin-bottom:8px;">{tt['population']} · {tt['core']}</div>
-                  <div style="font-size:.83rem;color:var(--t2);line-height:1.75;margin-bottom:10px;">{tt['desc']}</div>
+                  <div style="font-size:.86rem;color:var(--t2);line-height:1.8;margin-bottom:10px;white-space:pre-line;">{tt['detail']}</div>
                   <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
                     <div style="padding:.55rem .7rem;background:var(--sage-lt);border-radius:9px;">
                       <div class="label-sm" style="color:var(--sage);margin-bottom:3px;">강점</div>
@@ -1694,6 +1876,18 @@ with T4:
                       <div style="font-size:.74rem;color:var(--t2);line-height:1.55;">{tt['growth']}</div>
                     </div>
                   </div>
+                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+                    <div style="padding:.55rem .7rem;background:#ECFDF5;border-radius:9px;border:1px solid #A5D6B4;">
+                      <div class="label-sm" style="color:var(--sage);margin-bottom:3px;">✅ 잘 맞는 유형</div>
+                      <div style="font-size:.82rem;font-weight:700;color:var(--t1);margin-bottom:3px;">{" / ".join(TEMP_TYPES[k]["icon"] + " " + TEMP_TYPES[k]["name"] for k in tt["compatible"]["best"])}</div>
+                      <div style="font-size:.72rem;color:var(--t2);line-height:1.55;">{tt["compatible_desc"]["best"]}</div>
+                    </div>
+                    <div style="padding:.55rem .7rem;background:#FFF1F2;border-radius:9px;border:1px solid #FECDD3;">
+                      <div class="label-sm" style="color:var(--rose);margin-bottom:3px;">⚡ 주의가 필요한 유형</div>
+                      <div style="font-size:.82rem;font-weight:700;color:var(--t1);margin-bottom:3px;">{" / ".join(TEMP_TYPES[k]["icon"] + " " + TEMP_TYPES[k]["name"] for k in tt["compatible"]["challenging"])}</div>
+                      <div style="font-size:.72rem;color:var(--t2);line-height:1.55;">{tt["compatible_desc"]["challenging"]}</div>
+                    </div>
+                  </div>
                   <div style="padding:.45rem .7rem;background:var(--indigo-lt);border-radius:8px;">
                     <span class="label-sm" style="color:var(--indigo);">유사 MBTI:</span>
                     <span style="font-size:.77rem;color:var(--indigo-dark);font-weight:700;margin-left:6px;">{tt['similar']}</span>
@@ -1702,10 +1896,31 @@ with T4:
               </div>
             </div>
             """, unsafe_allow_html=True)
+
+            # 다른 유형 모두 보기
+            st.markdown("<div class='label-sm' style='margin:1rem 0 8px;'>다른 기질 유형 살펴보기</div>", unsafe_allow_html=True)
+            other_types = {k: v for k, v in TEMP_TYPES.items() if k != temp_result}
+            other_cols = st.columns(len(other_types), gap="small")
+            for col_o, (k, v) in zip(other_cols, other_types.items()):
+                with col_o:
+                    st.markdown(f"""
+                    <div style="background:var(--surface);border:1px solid var(--border);border-top:3px solid {v['color']};
+                                border-radius:11px;padding:.8rem .7rem;text-align:center;">
+                      <div style="font-size:1.3rem;">{v['icon']}</div>
+                      <div style="font-size:.72rem;font-weight:700;color:{v['color']};margin:.3rem 0 .2rem;">{v['name']}</div>
+                      <div style="font-size:.67rem;color:var(--t4);margin-bottom:.4rem;">{v['population']}</div>
+                      <div style="font-size:.7rem;color:var(--t2);line-height:1.5;text-align:left;">{v['desc']}</div>
+                      <div style="margin-top:.5rem;padding:.35rem .5rem;background:var(--bg2);border-radius:7px;font-size:.67rem;color:var(--t3);">{v['similar']}</div>
+                    </div>
+                    """, unsafe_allow_html=True)
+
+            st.markdown("<div style='height:.5rem;'></div>", unsafe_allow_html=True)
             if st.button("🔄  기질 나침반 다시 하기", key="retry_temp", use_container_width=True):
                 for k in [k for k in st.session_state.quiz_answers if k.startswith("temp_")]:
                     del st.session_state.quiz_answers[k]
                 del st.session_state.quiz_results["temperament"]
+                st.session_state.data.setdefault("quiz_results", {}).pop("temperament", None)
+                save_data(st.session_state.data)
                 st.rerun()
 
     # ─── ENNEAGRAM ────────────────────────────────────────────
@@ -1756,6 +1971,8 @@ with T4:
                     if ans is not None:
                         type_scores[item["type"]] += ENNEA_SCORES[ans]
                 st.session_state.quiz_results["enneagram"] = max(type_scores, key=type_scores.get)
+                st.session_state.data.setdefault("quiz_results", {})["enneagram"] = st.session_state.quiz_results["enneagram"]
+                save_data(st.session_state.data)
                 st.rerun()
         elif not all_done_e:
             remaining_e = len(ENNEA_ITEMS) - sum(1 for i in range(len(ENNEA_ITEMS)) if f"ennea_{i}" in st.session_state.quiz_answers)
@@ -1764,6 +1981,18 @@ with T4:
         if ennea_result:
             ei = next((e for e in ENNEA_ITEMS if e["type"] == ennea_result), None)
             if ei:
+                best_items = [e for e in ENNEA_ITEMS if e["type"] in ei["compatible"]["best"]]
+                chal_items = [e for e in ENNEA_ITEMS if e["type"] in ei["compatible"]["challenging"]]
+                best_html = "".join(
+                    f'<div style="font-size:.78rem;font-weight:700;color:{e["color"]};margin-bottom:2px;">'
+                    f'{e["icon"]} {e["type"]}번 {e["name"]}</div>'
+                    for e in best_items
+                )
+                chal_html = "".join(
+                    f'<div style="font-size:.78rem;font-weight:700;color:{e["color"]};margin-bottom:2px;">'
+                    f'{e["icon"]} {e["type"]}번 {e["name"]}</div>'
+                    for e in chal_items
+                )
                 st.markdown("<div style='height:.6rem;'></div>", unsafe_allow_html=True)
                 st.markdown(f"""
                 <div class="card" style="border-left:4px solid {ei['color']};margin-bottom:1.3rem;">
@@ -1772,8 +2001,8 @@ with T4:
                     <div style="flex:1;">
                       <div class="label-sm" style="color:{ei['color']};margin-bottom:4px;">에니어그램 {ei['type']}번 유형</div>
                       <div style="font-size:1.05rem;font-weight:800;color:var(--t1);margin-bottom:7px;">{ei['name']}</div>
-                      <div style="font-size:.83rem;color:var(--t2);line-height:1.75;margin-bottom:10px;">{ei['desc']}</div>
-                      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                      <div style="font-size:.86rem;color:var(--t2);line-height:1.8;margin-bottom:10px;">{ei['detail']}</div>
+                      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
                         <div style="padding:.55rem .7rem;background:var(--rose-lt);border-radius:9px;">
                           <div class="label-sm" style="color:var(--rose);margin-bottom:3px;">핵심 두려움</div>
                           <div style="font-size:.74rem;color:var(--t2);line-height:1.5;">{ei['core_fear']}</div>
@@ -1783,14 +2012,49 @@ with T4:
                           <div style="font-size:.74rem;color:var(--t2);line-height:1.5;">{ei['core_desire']}</div>
                         </div>
                       </div>
+                      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                        <div style="padding:.55rem .7rem;background:#ECFDF5;border-radius:9px;border:1px solid #A5D6B4;">
+                          <div class="label-sm" style="color:var(--sage);margin-bottom:4px;">✅ 잘 맞는 유형</div>
+                          {best_html}
+                          <div style="font-size:.71rem;color:var(--t2);line-height:1.5;margin-top:4px;">{ei["compatible_desc"]["best"]}</div>
+                        </div>
+                        <div style="padding:.55rem .7rem;background:#FFF1F2;border-radius:9px;border:1px solid #FECDD3;">
+                          <div class="label-sm" style="color:var(--rose);margin-bottom:4px;">⚡ 주의가 필요한 유형</div>
+                          {chal_html}
+                          <div style="font-size:.71rem;color:var(--t2);line-height:1.5;margin-top:4px;">{ei["compatible_desc"]["challenging"]}</div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
                 """, unsafe_allow_html=True)
+
+                # 다른 유형 모두 보기
+                st.markdown("<div class='label-sm' style='margin:.5rem 0 8px;'>다른 에니어그램 유형 살펴보기</div>", unsafe_allow_html=True)
+                other_ennea = [e for e in ENNEA_ITEMS if e["type"] != ennea_result]
+                cols_per_row = 4
+                for row_start in range(0, len(other_ennea), cols_per_row):
+                    row_items = other_ennea[row_start:row_start + cols_per_row]
+                    row_cols = st.columns(len(row_items), gap="small")
+                    for col_e, item_e in zip(row_cols, row_items):
+                        with col_e:
+                            st.markdown(f"""
+                            <div style="background:var(--surface);border:1px solid var(--border);
+                                        border-top:3px solid {item_e['color']};border-radius:10px;
+                                        padding:.7rem .6rem;text-align:center;margin-bottom:.4rem;">
+                              <div style="font-size:1.2rem;">{item_e['icon']}</div>
+                              <div style="font-size:.7rem;font-weight:700;color:{item_e['color']};margin:.25rem 0 .15rem;">{item_e['type']}번 {item_e['name']}</div>
+                              <div style="font-size:.67rem;color:var(--t3);line-height:1.45;">{item_e['core_desire']}</div>
+                            </div>
+                            """, unsafe_allow_html=True)
+
+                st.markdown("<div style='height:.5rem;'></div>", unsafe_allow_html=True)
             if st.button("🔄  에니어그램 다시 하기", key="retry_ennea", use_container_width=True):
                 for k in [k for k in st.session_state.quiz_answers if k.startswith("ennea_")]:
                     del st.session_state.quiz_answers[k]
                 del st.session_state.quiz_results["enneagram"]
+                st.session_state.data.setdefault("quiz_results", {}).pop("enneagram", None)
+                save_data(st.session_state.data)
                 st.rerun()
 
     # ─── STRESS PATTERN ───────────────────────────────────────
@@ -1840,6 +2104,8 @@ with T4:
                     if ans is not None:
                         counts_s[q["keys"][ans]] += 1
                 st.session_state.quiz_results["stress"] = max(counts_s, key=counts_s.get)
+                st.session_state.data.setdefault("quiz_results", {})["stress"] = st.session_state.quiz_results["stress"]
+                save_data(st.session_state.data)
                 st.rerun()
         elif not all_done_s:
             rem_s = len(STRESS_Q) - sum(1 for i in range(len(STRESS_Q)) if f"stress_{i}" in st.session_state.quiz_answers)
@@ -1847,6 +2113,16 @@ with T4:
 
         if stress_result and stress_result in STRESS_TYPES:
             stype = STRESS_TYPES[stress_result]
+            stress_best_html = "".join(
+                f'<div style="font-size:.78rem;font-weight:700;color:{STRESS_TYPES[k]["color"]};margin-bottom:2px;">'
+                f'{STRESS_TYPES[k]["icon"]} {STRESS_TYPES[k]["name"]}</div>'
+                for k in stype["compatible"]["best"]
+            )
+            stress_chal_html = "".join(
+                f'<div style="font-size:.78rem;font-weight:700;color:{STRESS_TYPES[k]["color"]};margin-bottom:2px;">'
+                f'{STRESS_TYPES[k]["icon"]} {STRESS_TYPES[k]["name"]}</div>'
+                for k in stype["compatible"]["challenging"]
+            )
             st.markdown("<div style='height:.6rem;'></div>", unsafe_allow_html=True)
             st.markdown(f"""
             <div class="card" style="border-left:4px solid {stype['color']};margin-bottom:1.3rem;">
@@ -1855,8 +2131,8 @@ with T4:
                 <div style="flex:1;">
                   <div class="label-sm" style="color:{stype['color']};margin-bottom:4px;">나의 스트레스 반응 유형</div>
                   <div style="font-size:1.05rem;font-weight:800;color:var(--t1);margin-bottom:8px;">{stype['name']}</div>
-                  <div style="font-size:.83rem;color:var(--t2);line-height:1.75;margin-bottom:10px;">{stype['desc']}</div>
-                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                  <div style="font-size:.86rem;color:var(--t2);line-height:1.8;margin-bottom:10px;">{stype['detail']}</div>
+                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
                     <div style="padding:.55rem .7rem;background:var(--indigo-lt);border-radius:9px;">
                       <div class="label-sm" style="color:var(--indigo);margin-bottom:3px;">성장 팁</div>
                       <div style="font-size:.73rem;color:var(--indigo-dark);line-height:1.55;">{stype['tip']}</div>
@@ -1866,14 +2142,45 @@ with T4:
                       <div style="font-size:.73rem;color:var(--t2);line-height:1.55;">{stype['therapy']}</div>
                     </div>
                   </div>
+                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                    <div style="padding:.55rem .7rem;background:#ECFDF5;border-radius:9px;border:1px solid #A5D6B4;">
+                      <div class="label-sm" style="color:var(--sage);margin-bottom:4px;">✅ 잘 맞는 유형</div>
+                      {stress_best_html}
+                      <div style="font-size:.71rem;color:var(--t2);line-height:1.5;margin-top:4px;">{stype["compatible_desc"]["best"]}</div>
+                    </div>
+                    <div style="padding:.55rem .7rem;background:#FFF1F2;border-radius:9px;border:1px solid #FECDD3;">
+                      <div class="label-sm" style="color:var(--rose);margin-bottom:4px;">⚡ 주의가 필요한 유형</div>
+                      {stress_chal_html}
+                      <div style="font-size:.71rem;color:var(--t2);line-height:1.5;margin-top:4px;">{stype["compatible_desc"]["challenging"]}</div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
             """, unsafe_allow_html=True)
+
+            # 다른 스트레스 유형 모두 보기
+            st.markdown("<div class='label-sm' style='margin:.5rem 0 8px;'>다른 스트레스 반응 유형 살펴보기</div>", unsafe_allow_html=True)
+            other_stress = {k: v for k, v in STRESS_TYPES.items() if k != stress_result}
+            stress_other_cols = st.columns(len(other_stress), gap="small")
+            for col_s, (k, v) in zip(stress_other_cols, other_stress.items()):
+                with col_s:
+                    st.markdown(f"""
+                    <div style="background:var(--surface);border:1px solid var(--border);
+                                border-top:3px solid {v['color']};border-radius:10px;padding:.75rem .65rem;text-align:center;">
+                      <div style="font-size:1.3rem;">{v['icon']}</div>
+                      <div style="font-size:.72rem;font-weight:700;color:{v['color']};margin:.25rem 0 .3rem;">{v['name']}</div>
+                      <div style="font-size:.7rem;color:var(--t2);line-height:1.5;text-align:left;">{v['desc']}</div>
+                    </div>
+                    """, unsafe_allow_html=True)
+
+            st.markdown("<div style='height:.5rem;'></div>", unsafe_allow_html=True)
             if st.button("🔄  스트레스 패턴 다시 하기", key="retry_stress", use_container_width=True):
                 for k in [k for k in st.session_state.quiz_answers if k.startswith("stress_")]:
                     del st.session_state.quiz_answers[k]
                 del st.session_state.quiz_results["stress"]
+                st.session_state.data.setdefault("quiz_results", {}).pop("stress", None)
+                save_data(st.session_state.data)
                 st.rerun()
 
 
