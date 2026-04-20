@@ -1299,37 +1299,75 @@ with T1:
     _done_n = sum(_done_list)
 
     # ── 히어로 배너 ──
-    _greeting = f"안녕하세요, {name}님! 👋" if name else "마음 연구소에 오신 것을 환영해요 ✨"
-    _sub = f"오늘도 나를 조금 더 알아가는 시간 — {_done_n}/6개 검사 완료"
     j_n_hero = len(st.session_state.data.get("journals", []))
     c_n_hero = len(st.session_state.msgs) // 2
     qr_hero  = st.session_state.quiz_results
 
-    # 대표 타입 한 줄
-    _type_line = ""
-    if qr_hero.get("temperament"):
-        tt = TEMP_TYPES.get(qr_hero["temperament"], {})
-        _type_line = f'{tt.get("icon","🧭")} {tt.get("name","")}'
+    import datetime as _dt
+    _now_hour = _dt.datetime.now().hour
+    if _now_hour < 12:   _time_greet = "좋은 아침이에요 ☀️"
+    elif _now_hour < 18: _time_greet = "오후도 힘내요 🌤"
+    else:                _time_greet = "오늘 하루 어떠셨나요 🌙"
+
+    if name:
+        _greeting = f"{name}님, {_time_greet}"
+        _sub = f"오늘도 자신을 탐구하는 시간 — {_done_n}/6개 검사 완료"
+    else:
+        _greeting = "마음 연구소에 오신 것을 환영해요 ✨"
+        _sub = "이름을 입력하면 맞춤 인사를 드려요 — 검사를 시작해 보세요!"
+
+    # 진행률 바
+    _pct = int(_done_n / 6 * 100)
+    _pct_color = "#10B981" if _pct == 100 else "#818CF8"
+
+    # 유형 뱃지
+    _badges = []
     if pr.get("attachment"):
         at = ATTACHMENT_TYPES.get(pr["attachment"], {})
-        _type_line += f'　{at.get("icon","💞")} {at.get("name","")}'
+        _badges.append(f'{at.get("icon","💞")} {at.get("name","")}')
+    if qr_hero.get("temperament"):
+        tt = TEMP_TYPES.get(qr_hero["temperament"], {})
+        _badges.append(f'{tt.get("icon","🧭")} {tt.get("name","")}')
+    if qr_hero.get("enneagram"):
+        _en = next((e for e in ENNEA_ITEMS if e["type"] == qr_hero["enneagram"]), None)
+        if _en: _badges.append(f'{_en["icon"]} {_en["type"]}번 {_en["name"]}')
+    _badge_html = "".join(
+        f'<span style="display:inline-flex;align-items:center;gap:4px;padding:3px 11px;'
+        f'border-radius:20px;font-size:.73rem;font-weight:700;'
+        f'background:rgba(255,255,255,.2);margin:2px;">{b}</span>'
+        for b in _badges
+    )
+
+    # 완료 축하 문구
+    if _done_n == 6:
+        _celebrate = "🎉 모든 검사 완료! 소이가 당신을 깊이 이해하고 있어요."
+    elif _done_n >= 3:
+        _celebrate = f"✨ {6-_done_n}개 검사를 더 완료하면 더욱 정밀한 분석이 가능해요."
+    elif name:
+        _celebrate = "💡 성격 심층 진단부터 시작해 보세요!"
+    else:
+        _celebrate = ""
+
+    # 유형 뱃지 텍스트 (HTML 없이)
+    _badge_texts = " · ".join(_badges) if _badges else ""
 
     st.markdown(f"""
     <div class="hero-banner fade-up">
       <div style="position:relative;z-index:1;">
-        <div style="font-size:.72rem;font-weight:700;letter-spacing:.12em;opacity:.75;text-transform:uppercase;margin-bottom:6px;">
-          ◎ 마음 연구소
+        <div style="font-size:.7rem;font-weight:700;letter-spacing:.12em;opacity:.7;text-transform:uppercase;margin-bottom:6px;">◎ 마음 연구소</div>
+        <div style="font-size:1.6rem;font-weight:800;letter-spacing:-.03em;line-height:1.2;margin-bottom:.35rem;">{_greeting}</div>
+        <div style="font-size:.85rem;opacity:.82;margin-bottom:.8rem;">{_sub}</div>
+        <div style="background:rgba(255,255,255,.2);border-radius:99px;height:7px;margin-bottom:.7rem;">
+          <div style="width:{_pct}%;background:{_pct_color};height:7px;border-radius:99px;
+                      box-shadow:0 0 8px rgba(129,140,248,.6);"></div>
         </div>
-        <div style="font-size:1.55rem;font-weight:800;letter-spacing:-.03em;line-height:1.25;margin-bottom:.4rem;">
-          {_greeting}
-        </div>
-        <div style="font-size:.88rem;opacity:.85;margin-bottom:1rem;">{_sub}</div>
-        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:{'0.5rem' if _type_line else '0'};">
+        <div style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:.5rem;">
           <div class="stat-pill">🗓 일지 {j_n_hero}편</div>
           <div class="stat-pill">💬 상담 {c_n_hero}회</div>
-          <div class="stat-pill">🧩 검사 {_done_n}/6</div>
+          <div class="stat-pill">🧩 {_done_n}/6 완료</div>
         </div>
-        {"<div style='font-size:.82rem;opacity:.8;margin-top:.3rem;'>"+_type_line+"</div>" if _type_line else ""}
+        <div style="font-size:.78rem;opacity:.85;margin-top:.2rem;">{_badge_texts}</div>
+        <div style="font-size:.8rem;opacity:.85;margin-top:.3rem;">{_celebrate}</div>
       </div>
     </div>
     """, unsafe_allow_html=True)
@@ -1406,6 +1444,8 @@ with T1:
             st.session_state.data["profile"]["age_range"] = new_age if new_age != "선택" else ""
             save_data(st.session_state.data)
             st.toast("저장되었습니다.", icon="✅")
+            st.rerun()
+            st.rerun()
 
         # ── 검사 현황 ──
         _all_steps = [
