@@ -1037,6 +1037,41 @@ with st.sidebar:
         save_data(st.session_state.data)
         st.rerun()
 
+    st.divider()
+
+    # ── 전체 검사 초기화 ──
+    st.markdown("""
+    <div style="font-size:.66rem;color:#3A3530;font-weight:700;letter-spacing:.06em;margin-bottom:6px;text-transform:uppercase;">
+      검사 초기화
+    </div>
+    """, unsafe_allow_html=True)
+
+    if "confirm_reset_all" not in st.session_state:
+        st.session_state.confirm_reset_all = False
+
+    if not st.session_state.confirm_reset_all:
+        if st.button("🔄  모든 검사 처음부터 다시하기", use_container_width=True):
+            st.session_state.confirm_reset_all = True
+            st.rerun()
+    else:
+        st.markdown("""
+        <div style="font-size:.75rem;color:#FBBF24;line-height:1.5;margin-bottom:6px;">
+          ⚠️ 모든 검사 결과와 프로필이 삭제됩니다. 정말 초기화할까요?
+        </div>
+        """, unsafe_allow_html=True)
+        rc1, rc2 = st.columns(2, gap="small")
+        with rc1:
+            if st.button("✅ 확인", use_container_width=True, type="primary"):
+                if os.path.exists(DATA_FILE):
+                    os.remove(DATA_FILE)
+                for key in list(st.session_state.keys()):
+                    del st.session_state[key]
+                st.rerun()
+        with rc2:
+            if st.button("취소", use_container_width=True):
+                st.session_state.confirm_reset_all = False
+                st.rerun()
+
 # ═══════════════════════════════════════════════════════════════
 # ─── RETURNING USER CHECK ──────────────────────────────────────
 # ═══════════════════════════════════════════════════════════════
