@@ -2870,6 +2870,7 @@ with T5:
                         # 파일 인코딩
                         new_attachments = list(existing_attachments)
                         for uf in (uploaded_files or []):
+                            uf.seek(0)
                             data_b64 = base64.b64encode(uf.read()).decode("utf-8")
                             new_attachments.append({"name": uf.name, "type": uf.type, "data": data_b64})
                         entry = {
@@ -2908,6 +2909,7 @@ with T5:
                             )
                         new_attachments = list(existing_attachments)
                         for uf in (uploaded_files or []):
+                            uf.seek(0)
                             data_b64 = base64.b64encode(uf.read()).decode("utf-8")
                             new_attachments.append({"name": uf.name, "type": uf.type, "data": data_b64})
                         entry = {
